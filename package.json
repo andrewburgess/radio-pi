@@ -1,0 +1,23 @@
+{
+  "name": "revolt-radio",
+  "version": "1.0.0",
+  "description": "REVOLT Radio",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/andrewburgess/revolt-radio.git"
+  },
+  "author": "Andrew Burgess <andrew@andrewburgess.io>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andrewburgess/revolt-radio/issues"
+  },
+  "homepage": "https://github.com/andrewburgess/revolt-radio#readme",
+  "dependencies": {
+    "electron": "https://github.com/castlabs/electron-releases#v6.0.0-wvvmp-beta.13"
+  }
+}
