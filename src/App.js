@@ -1,18 +1,47 @@
 import React from "react"
+import { normalize } from "polished"
+import styled, { createGlobalStyle } from "styled-components"
 
-function App() {
+import { PlayerProvider } from "./context/player"
+
+const GlobalStyles = createGlobalStyle`
+    ${normalize()}
+
+    @import url('https://fonts.googleapis.com/css?family=Raleway:500,700,900&display=swap');
+
+    :root {
+        --primary-color: #f01c20;
+    }
+
+    html {
+        background-color: #131114;
+        color: #fff;
+        font-family: 'Raleway', sans-serif;
+    }
+`
+
+function App(props) {
     return (
-        <div className="App">
-            <header className="App-header">
-                <p>
-                    Edit <code>src/App.js</code> and save to reload!!!
-                </p>
-                <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-                    Learn React
-                </a>
-            </header>
-        </div>
+        <PlayerProvider>
+            <GlobalStyles />
+            <div className={props.className}>
+                <header>
+                    <h1>
+                        <span>REVOLT</span> RADIO
+                    </h1>
+                </header>
+            </div>
+        </PlayerProvider>
     )
 }
 
-export default App
+export default styled(App)`
+    h1 {
+        font-weight: 900;
+        text-align: center;
+
+        span {
+            color: var(--primary-color);
+        }
+    }
+`
