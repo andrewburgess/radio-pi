@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from "react"
 import { normalize } from "polished"
 import styled, { createGlobalStyle } from "styled-components"
 
@@ -20,7 +20,11 @@ const GlobalStyles = createGlobalStyle`
     }
 `
 
-function App(props) {
+export interface IAppProps {
+    className?: string
+}
+
+const App: React.SFC<IAppProps> = (props) => {
     return (
         <PlayerProvider>
             <GlobalStyles />

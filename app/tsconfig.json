@@ -1,0 +1,45 @@
+{
+    "compilerOptions": {
+        "allowJs": false,
+        "allowSyntheticDefaultImports": false,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "jsx": "preserve",
+        "lib": [
+            "dom",
+            "esnext.asynciterable",
+            "es5",
+            "es6",
+            "es7",
+            "es2017"
+        ],
+        "module": "esnext",
+        "moduleResolution": "node",
+        "noEmit": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "preserveSymlinks": true,
+        "pretty": true,
+        "removeComments": false,
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "strictNullChecks": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "target": "esnext",
+        "typeRoots": [
+            "./node_modules/@types",
+            "./types"
+        ]
+    },
+    "exclude": [
+        "node_modules",
+        "public"
+    ],
+    "include": [
+        "**/*.ts",
+        "**/*.tsx"
+    ]
+}

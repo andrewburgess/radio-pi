@@ -1,10 +1,17 @@
-import qs from "querystring"
-import React, { createContext, useEffect, useState } from "react"
+import * as React from "react"
+import { createContext, useEffect, useReducer } from "react"
 
-const PlayerContext = createContext([null])
+const PlayerContext = createContext([{}, () => {}])
 
-const PlayerProvider = (props) => {
-    const [player, setPlayer] = useState(null)
+const DEFAULT_STATE = {
+    authentication: null,
+    player: null
+}
+
+export interface IPlayerProviderProps {}
+
+const PlayerProvider: React.SFC<IPlayerProviderProps> = (props) => {
+    /*const [player, setPlayer] = useState(null)
 
     useEffect(() => {
         window.onSpotifyWebPlaybackSDKReady = () => {
@@ -17,7 +24,7 @@ const PlayerProvider = (props) => {
                         }
 
                         // TODO: Needs to be moved to a server side process
-                        /*const message = qs.parse(event.data)
+                        const message = qs.parse(event.data)
 
                         fetch("https://accounts.spotify.com/api/token", {
                             body: JSON.stringify({
@@ -38,7 +45,7 @@ const PlayerProvider = (props) => {
                             .then((data) => {
                                 cb(data.access_token)
                             })
-                            */
+                        
                     })
 
                     window.open(
@@ -62,9 +69,9 @@ const PlayerProvider = (props) => {
         const script = document.createElement("script")
         script.src = "https://sdk.scdn.co/spotify-player.js"
         document.getElementsByTagName("head")[0].append(script)
-    }, [])
+    }, [])*/
 
-    return <PlayerContext.Provider value={player}>{props.children}</PlayerContext.Provider>
+    return <PlayerContext.Provider value={[{}, () => {}]}>{props.children}</PlayerContext.Provider>
 }
 
 export { PlayerContext, PlayerProvider }
