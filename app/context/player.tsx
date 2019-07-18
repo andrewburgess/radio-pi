@@ -21,14 +21,38 @@ const PlayerProvider: React.SFC<IPlayerProviderProps> = (props) => {
                 name: "REVOLT Radio",
                 getOAuthToken: async (cb) => {
                     const tokens = await authorize()
-
-                    console.log(tokens)
+                    cb(tokens.access_token)
                 }
+            })
+
+            player.addListener(PlayerEvents.READY, ({ device_id }: any) => {
+                console.log(`Spotify Web Player ready with device id ${device_id}`)
+                //setPlayer(player)
             })
 
             player.addListener(PlayerEvents.READY, ({ device_id }: any) => {
                 console.debug(`Spotify Web Player ready with device id ${device_id}`)
                 //setPlayer(player)
+            })
+
+            player.addListener(PlayerEvents.INITIALIZATION_ERROR, ({ message }: any) => {
+                console.error(message)
+            })
+
+            player.addListener(PlayerEvents.AUTHENTICATION_ERROR, ({ message }: any) => {
+                console.log(message)
+            })
+
+            player.addListener(PlayerEvents.ACCOUNT_ERROR, ({ message }: any) => {
+                console.log(message)
+            })
+
+            player.addListener(PlayerEvents.PLAYBACK_ERROR, ({ message }: any) => {
+                console.log(message)
+            })
+
+            player.addListener(PlayerEvents.PLAYER_STATE_CHANGED, (state: any) => {
+                console.log(state)
             })
 
             player.connect()

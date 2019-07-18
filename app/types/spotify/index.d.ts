@@ -71,7 +71,7 @@ export class Player {
      *
      * @returns Returns a Boolean. Returns true if the event listener for the event_name is unique. See #removeListener for removing existing listeners.
      */
-    addListener(eventName: PlayerEvents, callback: Function): boolean
+    addListener(eventName: string, callback: Function): boolean
 
     /**
      * Connect our Web Playback SDK instance to Spotify with the credentials provided during initialization.

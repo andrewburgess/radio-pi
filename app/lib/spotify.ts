@@ -37,11 +37,17 @@ export interface ISpotifyTokens {
 }
 
 async function getTokens(code: string): Promise<ISpotifyTokens> {
+    if (!code) {
+        throw new Error("code not supplied")
+    }
     const response = await fetch("/api/spotify/token", {
         body: JSON.stringify({
             code,
             redirect_uri: REDIRECT_URI
         }),
+        headers: {
+            "content-type": "application/json"
+        },
         method: "POST"
     })
     const data = (await response.json()) as ISpotifyTokens

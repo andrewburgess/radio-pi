@@ -1,3 +1,5 @@
+require("dotenv").config()
+
 import { app, BrowserWindow } from "electron"
 import { Server } from "http"
 
