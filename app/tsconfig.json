@@ -30,13 +30,14 @@
         "suppressImplicitAnyIndexErrors": true,
         "target": "esnext",
         "typeRoots": [
-            "./node_modules/@types",
-            "./types"
+            "./app/types",
+            "../node_modules/@types"
         ]
     },
     "exclude": [
-        "node_modules",
-        "public"
+        "../node_modules",
+        "../node_modules/@types/react-native",
+        "./public"
     ],
     "include": [
         "**/*.ts",
