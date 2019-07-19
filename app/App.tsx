@@ -4,6 +4,8 @@ import styled, { createGlobalStyle } from "styled-components"
 
 import { PlayerProvider } from "./context/player"
 
+import Title from "./components/Title"
+
 const GlobalStyles = createGlobalStyle`
     ${normalize()}
 
@@ -34,6 +36,7 @@ const App: React.SFC<IAppProps> = (props) => {
                         <span>REVOLT</span> RADIO
                     </h1>
                 </header>
+                <Title />
             </div>
         </PlayerProvider>
     )
