@@ -76,7 +76,8 @@ module.exports = {
     proxySetup: resolveApp("app/setupProxy.js"),
     appNodeModules: resolveApp("node_modules"),
     publicUrl: getPublicUrl(resolveApp("package.json")),
-    servedPath: getServedPath(resolveApp("package.json"))
+    servedPath: getServedPath(resolveApp("package.json")),
+    playerIndexJs: resolveModule(resolveApp, "app/player")
 }
 
 module.exports.moduleFileExtensions = moduleFileExtensions
