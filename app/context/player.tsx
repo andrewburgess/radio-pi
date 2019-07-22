@@ -1,7 +1,7 @@
 import * as React from "react"
 import { createContext, useEffect, useReducer } from "react"
 
-import { authorize, PlayerEvents, ISpotifyTokens } from "../lib/spotify"
+import { refresh, PlayerEvents, ISpotifyTokens } from "../lib/spotify"
 import { Player, IWebPlaybackState } from "../types/spotify"
 
 export interface IPlayerState {
@@ -19,6 +19,7 @@ const DEFAULT_STATE: IPlayerState = {
 export interface IPlayerProviderProps {}
 
 const SET_PLAYER = "player:set"
+const SET_TOKENS = "player:set-tokens"
 const UPDATE_PLAYER_STATE = "player:update-state"
 
 export const setPlayer = (player: Player) => ({
@@ -29,6 +30,11 @@ export const setPlayer = (player: Player) => ({
 export const setPlaybackState = (state: IWebPlaybackState) => ({
     payload: state,
     type: UPDATE_PLAYER_STATE
+})
+
+export const setTokens = (tokens: ISpotifyTokens) => ({
+    payload: tokens,
+    type: SET_TOKENS
 })
 
 const PlayerContext = createContext<[IPlayerState, React.Dispatch<any>]>([DEFAULT_STATE, () => {}])
@@ -58,8 +64,28 @@ const PlayerProvider: React.SFC<IPlayerProviderProps> = (props) => {
             const player = new window.Spotify.Player({
                 name: "REVOLT Radio",
                 getOAuthToken: async (cb) => {
-                    const tokens = await authorize()
-                    cb(tokens.access_token)
+                    if (state.tokens && state.tokens.refresh_token) {
+                        const tokens = await refresh(state.tokens.refresh_token)
+                        dispatch(setTokens(tokens))
+                        cb(tokens.access_token)
+                    } else {
+                        window.addEventListener("message", (event: MessageEvent) => {
+                            if (event.origin !== window.location.origin) {
+                                return
+                            }
+
+                            try {
+                                const message = JSON.parse(event.data)
+                                if (message.type && message.type === "authorize") {
+                                    const tokens = message.payload
+                                    dispatch(setTokens(tokens))
+                                    cb(tokens.access_token)
+                                }
+                            } catch (e) {
+                                // Message was not JSON format most likely
+                            }
+                        })
+                    }
                 }
             })
 
@@ -86,6 +112,13 @@ const PlayerProvider: React.SFC<IPlayerProviderProps> = (props) => {
 
             player.addListener(PlayerEvents.PLAYER_STATE_CHANGED, (state: any) => {
                 dispatch(setPlaybackState(state))
+                window.postMessage(
+                    JSON.stringify({
+                        type: UPDATE_PLAYER_STATE,
+                        payload: state
+                    }),
+                    window.location.origin
+                )
             })
 
             player.connect()
@@ -94,6 +127,18 @@ const PlayerProvider: React.SFC<IPlayerProviderProps> = (props) => {
         const script = document.createElement("script")
         script.src = "https://sdk.scdn.co/spotify-player.js"
         document.getElementsByTagName("head")[0].append(script)
+    }, [])
+
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.origin !== window.location.origin) {
+                return
+            }
+        }
+
+        window.addEventListener("message", handleMessage)
+
+        return () => window.removeEventListener("message", handleMessage)
     }, [])
 
     return <PlayerContext.Provider value={[state, dispatch]}>{props.children}</PlayerContext.Provider>

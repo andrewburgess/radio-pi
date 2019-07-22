@@ -74,3 +74,7 @@ export async function authorize(): Promise<ISpotifyTokens> {
         window.open(AUTHORIZE_ENDPOINT)
     })
 }
+
+export async function refresh(refreshToken: string): Promise<ISpotifyTokens> {
+    return await getTokens(refreshToken)
+}
