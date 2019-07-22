@@ -5,12 +5,14 @@ import { refresh, PlayerEvents, ISpotifyTokens } from "../lib/spotify"
 import { Player, IWebPlaybackState } from "../types/spotify"
 
 export interface IPlayerState {
+    error: string
     playbackState: IWebPlaybackState | null
     player: Player | null
     tokens: ISpotifyTokens | null
 }
 
 const DEFAULT_STATE: IPlayerState = {
+    error: "",
     playbackState: null,
     player: null,
     tokens: null
@@ -18,9 +20,15 @@ const DEFAULT_STATE: IPlayerState = {
 
 export interface IPlayerProviderProps {}
 
+const SET_ERROR = "player:error"
 const SET_PLAYER = "player:set"
 const SET_TOKENS = "player:set-tokens"
 const UPDATE_PLAYER_STATE = "player:update-state"
+
+export const setError = (message: string) => ({
+    payload: message,
+    type: SET_ERROR
+})
 
 export const setPlayer = (player: Player) => ({
     payload: player,
@@ -41,6 +49,11 @@ const PlayerContext = createContext<[IPlayerState, React.Dispatch<any>]>([DEFAUL
 
 function reducer(state: IPlayerState, action: any): IPlayerState {
     switch (action.type) {
+        case SET_ERROR:
+            return {
+                ...state,
+                error: action.payload
+            }
         case SET_PLAYER:
             return {
                 ...state,
@@ -92,22 +105,55 @@ const PlayerProvider: React.SFC<IPlayerProviderProps> = (props) => {
             player.addListener(PlayerEvents.READY, ({ device_id }: any) => {
                 console.debug(`Spotify Web Player ready with device id ${device_id}`)
                 dispatch(setPlayer(player))
+                dispatch(setError(""))
             })
 
             player.addListener(PlayerEvents.INITIALIZATION_ERROR, ({ message }: any) => {
                 console.error(message)
+                dispatch(setError(message))
+                window.postMessage(
+                    JSON.stringify({
+                        type: SET_ERROR,
+                        payload: message
+                    }),
+                    window.location.origin
+                )
             })
 
             player.addListener(PlayerEvents.AUTHENTICATION_ERROR, ({ message }: any) => {
                 console.log(message)
+                dispatch(setError(message))
+                window.postMessage(
+                    JSON.stringify({
+                        type: SET_ERROR,
+                        payload: message
+                    }),
+                    window.location.origin
+                )
             })
 
             player.addListener(PlayerEvents.ACCOUNT_ERROR, ({ message }: any) => {
                 console.log(message)
+                dispatch(setError(message))
+                window.postMessage(
+                    JSON.stringify({
+                        type: SET_ERROR,
+                        payload: message
+                    }),
+                    window.location.origin
+                )
             })
 
             player.addListener(PlayerEvents.PLAYBACK_ERROR, ({ message }: any) => {
                 console.log(message)
+                dispatch(setError(message))
+                window.postMessage(
+                    JSON.stringify({
+                        type: SET_ERROR,
+                        payload: message
+                    }),
+                    window.location.origin
+                )
             })
 
             player.addListener(PlayerEvents.PLAYER_STATE_CHANGED, (state: any) => {
