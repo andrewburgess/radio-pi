@@ -2,6 +2,7 @@ import * as React from "react"
 import { normalize } from "polished"
 import styled, { createGlobalStyle } from "styled-components"
 
+import { AppProvider } from "./context/app"
 import Title from "./components/Title"
 
 const GlobalStyles = createGlobalStyle`
@@ -26,7 +27,7 @@ export interface IAppProps {
 
 const App: React.SFC<IAppProps> = (props) => {
     return (
-        <>
+        <AppProvider>
             <GlobalStyles />
             <div className={props.className}>
                 <header>
@@ -36,7 +37,7 @@ const App: React.SFC<IAppProps> = (props) => {
                 </header>
                 <Title />
             </div>
-        </>
+        </AppProvider>
     )
 }
 
