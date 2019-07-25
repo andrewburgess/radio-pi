@@ -1,6 +1,7 @@
 import * as React from "react"
-import { createContext, useEffect, useReducer } from "react"
+import { createContext, useEffect, useReducer, useRef } from "react"
 
+import { MESSAGE_CLIENT_TYPE, CLIENT_TYPE } from "../constants"
 import { refresh, PlayerEvents, ISpotifyTokens } from "../lib/spotify"
 import { Player, IWebPlaybackState } from "../types/spotify"
 
@@ -70,9 +71,14 @@ function reducer(state: IPlayerState, action: any): IPlayerState {
 }
 
 const PlayerProvider: React.SFC<IPlayerProviderProps> = (props) => {
+    const playerRef = useRef<Player>()
     const [state, dispatch] = useReducer(reducer, DEFAULT_STATE)
 
     useEffect(() => {
+        if (playerRef.current) {
+            return
+        }
+
         window.onSpotifyWebPlaybackSDKReady = () => {
             const player = new window.Spotify.Player({
                 name: "REVOLT Radio",
@@ -168,6 +174,8 @@ const PlayerProvider: React.SFC<IPlayerProviderProps> = (props) => {
             })
 
             player.connect()
+
+            playerRef.current = player
         }
 
         const script = document.createElement("script")
@@ -176,15 +184,24 @@ const PlayerProvider: React.SFC<IPlayerProviderProps> = (props) => {
     }, [])
 
     useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            if (event.origin !== window.location.origin) {
-                return
-            }
+        const ws = new WebSocket(`ws://${window.location.hostname}:3001/ws`)
+
+        const handleMessage = (data: MessageEvent) => {
+            console.log(data)
         }
 
-        window.addEventListener("message", handleMessage)
+        ws.addEventListener("open", () => {
+            ws.addEventListener("message", handleMessage)
 
-        return () => window.removeEventListener("message", handleMessage)
+            ws.send(
+                JSON.stringify({
+                    payload: CLIENT_TYPE.PLAYER,
+                    type: MESSAGE_CLIENT_TYPE
+                })
+            )
+        })
+
+        return () => ws.close()
     }, [])
 
     return <PlayerContext.Provider value={[state, dispatch]}>{props.children}</PlayerContext.Provider>

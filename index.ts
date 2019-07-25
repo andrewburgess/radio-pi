@@ -64,7 +64,7 @@ function createPlayerWindow() {
 
     player.loadURL("http://localhost:3000/player.html")
     player.on("closed", () => {
-        window = null
+        player = null
     })
     player.on("show", () => {
         if (player) {
