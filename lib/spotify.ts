@@ -2,6 +2,8 @@ import fetch from "node-fetch"
 import * as qs from "querystring"
 import btoa = require("btoa")
 
+import { ISpotifyTokens } from "../app/constants"
+
 const API_ENDPOINT = "https://accounts.spotify.com"
 
 export async function token(code: string, redirectUri: string) {
@@ -23,7 +25,7 @@ export async function token(code: string, redirectUri: string) {
         method: "POST"
     })
 
-    const data = await response.json()
+    const data = (await response.json()) as ISpotifyTokens
 
     return data
 }

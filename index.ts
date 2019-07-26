@@ -100,11 +100,11 @@ app.on("activate", () => {
     }
 })
 
-app.on("ready", () => {
+app.on("ready", async () => {
     createWindow()
     createPlayerWindow()
 
-    server = startServer()
+    server = await startServer()
 })
 
 app.on("will-quit", () => {

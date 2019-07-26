@@ -45,6 +45,7 @@ async function getTokens(code: string): Promise<ISpotifyTokens> {
         method: "POST"
     })
     const data = (await response.json()) as ISpotifyTokens
+    data.redirect_uri = REDIRECT_URI
 
     return data
 }

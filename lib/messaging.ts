@@ -1,5 +1,6 @@
 import { IncomingMessage } from "http"
 import { each } from "lodash"
+import { promisify } from "util"
 import * as WebSocket from "ws"
 
 import {
@@ -7,8 +8,20 @@ import {
     CLIENT_TYPE,
     MESSAGE_TOKEN,
     MESSAGE_REQUEST_TOKEN,
-    ISpotifyTokens
+    ISpotifyTokens,
+    DOCUMENT_TOKENS
 } from "../app/constants"
+
+import database from "./database"
+import { token } from "./spotify"
+import console = require("console")
+
+const findOne = promisify(database.findOne.bind(database)) as <T>(query: any) => Promise<T>
+const update = promisify(database.update.bind(database)) as (
+    query: any,
+    updateQuery: any,
+    options?: Nedb.UpdateOptions | undefined
+) => Promise<{ numberOfUpdated: number; upsert: boolean }>
 
 // General list of connected clients
 const clients: WebSocket[] = []
@@ -29,18 +42,31 @@ const onClientTypeMessage = (ws: WebSocket, message: any) => {
     }
 }
 
-function handleMessage(ws: WebSocket, message: any) {
+async function storeTokens(tokens: ISpotifyTokens) {
+    return await update({ _id: DOCUMENT_TOKENS }, { _id: DOCUMENT_TOKENS, ...tokens }, { upsert: true })
+}
+
+async function handleMessage(ws: WebSocket, message: any) {
     switch (message.type) {
         case MESSAGE_CLIENT_TYPE:
             return onClientTypeMessage(ws, message)
         case MESSAGE_TOKEN:
-            tokens = message.payload
+            tokens = message.payload as ISpotifyTokens
+            await storeTokens(tokens)
             each(players, (player) => {
                 player.send(JSON.stringify(message))
             })
             break
         case MESSAGE_REQUEST_TOKEN:
             if (tokens) {
+                const refreshed = await token(tokens.refresh_token, tokens.redirect_uri)
+                tokens = {
+                    ...tokens,
+                    ...refreshed
+                }
+                await storeTokens(tokens)
+                console.log("refreshed tokens")
+
                 each(players, (player) =>
                     player.send(
                         JSON.stringify({
@@ -54,6 +80,10 @@ function handleMessage(ws: WebSocket, message: any) {
         default:
             console.log("unknown message type", message)
     }
+}
+
+export async function initialize() {
+    tokens = await findOne({ _id: DOCUMENT_TOKENS })
 }
 
 export function onConnection(ws: WebSocket, req: IncomingMessage) {

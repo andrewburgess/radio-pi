@@ -4,7 +4,7 @@ import * as express from "express"
 import * as http from "http"
 import * as WebSocket from "ws"
 
-import { onConnection } from "./messaging"
+import { initialize, onConnection } from "./messaging"
 import { token } from "./spotify"
 
 const app = express()
@@ -30,7 +30,8 @@ const socket = new WebSocket.Server({ server })
 
 socket.on("connection", onConnection)
 
-export default () => {
+export default async () => {
+    await initialize()
     return server.listen(3001, () => {
         console.log("server listening on 3001")
     })
