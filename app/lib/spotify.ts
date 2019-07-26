@@ -1,4 +1,5 @@
 import * as qs from "querystring"
+import { ISpotifyTokens } from "../constants"
 
 const REDIRECT_URI = `${window.location.origin}/auth.html`
 const AUTHORIZE_ENDPOINT = `https://accounts.spotify.com/authorize?response_type=code&client_id=${
@@ -27,13 +28,6 @@ export enum TrackType {
     TRACK = "track",
     EPISODE = "episode",
     AD = "ad"
-}
-export interface ISpotifyTokens {
-    access_token: string
-    expires_in: number
-    refresh_token: string
-    scope: string
-    token_type: "Bearer"
 }
 
 async function getTokens(code: string): Promise<ISpotifyTokens> {

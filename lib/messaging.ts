@@ -1,7 +1,14 @@
 import { IncomingMessage } from "http"
+import { each } from "lodash"
 import * as WebSocket from "ws"
 
-import { MESSAGE_CLIENT_TYPE, CLIENT_TYPE } from "../app/constants"
+import {
+    MESSAGE_CLIENT_TYPE,
+    CLIENT_TYPE,
+    MESSAGE_TOKEN,
+    MESSAGE_REQUEST_TOKEN,
+    ISpotifyTokens
+} from "../app/constants"
 
 // General list of connected clients
 const clients: WebSocket[] = []
@@ -9,6 +16,8 @@ const clients: WebSocket[] = []
 const players: WebSocket[] = []
 // Clients that have identified as remotes
 const remotes: WebSocket[] = []
+
+let tokens: ISpotifyTokens | null
 
 const onClientTypeMessage = (ws: WebSocket, message: any) => {
     if (message.payload === CLIENT_TYPE.PLAYER) {
@@ -24,6 +33,24 @@ function handleMessage(ws: WebSocket, message: any) {
     switch (message.type) {
         case MESSAGE_CLIENT_TYPE:
             return onClientTypeMessage(ws, message)
+        case MESSAGE_TOKEN:
+            tokens = message.payload
+            each(players, (player) => {
+                player.send(JSON.stringify(message))
+            })
+            break
+        case MESSAGE_REQUEST_TOKEN:
+            if (tokens) {
+                each(players, (player) =>
+                    player.send(
+                        JSON.stringify({
+                            payload: tokens,
+                            type: MESSAGE_TOKEN
+                        })
+                    )
+                )
+            }
+            break
         default:
             console.log("unknown message type", message)
     }

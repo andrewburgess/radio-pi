@@ -4,7 +4,9 @@ import * as React from "react"
 import * as ReactDOM from "react-dom"
 import { createGlobalStyle } from "styled-components"
 
-import { PlayerProvider } from "./context/player"
+import { Player as SpotifyPlayer } from "./types/spotify"
+import { PlayerEvents } from "./lib/spotify"
+import { CLIENT_TYPE, MESSAGE_CLIENT_TYPE, MESSAGE_TOKEN, MESSAGE_REQUEST_TOKEN } from "./constants"
 
 const Style = createGlobalStyle`
     ${normalize()}
@@ -42,10 +44,54 @@ const Player = () => {
     }
 
     return (
-        <PlayerProvider>
+        <div>
             <Style />
-        </PlayerProvider>
+        </div>
     )
 }
+
+let player: SpotifyPlayer
+const ws = new WebSocket(`ws://${window.location.hostname}:3001/ws`)
+
+ws.addEventListener("open", () => {
+    ws.send(
+        JSON.stringify({
+            payload: CLIENT_TYPE.PLAYER,
+            type: MESSAGE_CLIENT_TYPE
+        })
+    )
+})
+
+window.onSpotifyWebPlaybackSDKReady = () => {
+    player = new window.Spotify.Player({
+        name: "REVOLT Radio",
+        getOAuthToken: async (cb) => {
+            ws.addEventListener("message", (event) => {
+                const message = JSON.parse(event.data)
+
+                if (message.type === MESSAGE_TOKEN) {
+                    event.preventDefault()
+                    event.stopPropagation()
+
+                    cb(message.payload.access_token)
+                }
+            })
+
+            ws.send(
+                JSON.stringify({
+                    type: MESSAGE_REQUEST_TOKEN
+                })
+            )
+        }
+    })
+
+    player.addListener(PlayerEvents.READY, ({ device_id }: any) => {})
+
+    player.connect()
+}
+
+const script = document.createElement("script")
+script.src = "https://sdk.scdn.co/spotify-player.js"
+document.getElementsByTagName("head")[0].append(script)
 
 ReactDOM.render(<Player />, document.getElementById("root"))
