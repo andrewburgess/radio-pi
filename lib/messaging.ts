@@ -9,12 +9,12 @@ import {
     MESSAGE_TOKEN,
     MESSAGE_REQUEST_TOKEN,
     ISpotifyTokens,
-    DOCUMENT_TOKENS
+    DOCUMENT_TOKENS,
+    MESSAGE_UNAUTHORIZED
 } from "../app/constants"
 
 import database from "./database"
 import { token } from "./spotify"
-import console = require("console")
 
 const findOne = promisify(database.findOne.bind(database)) as <T>(query: any) => Promise<T>
 const update = promisify(database.update.bind(database)) as (
@@ -34,12 +34,61 @@ let tokens: ISpotifyTokens | null
 
 const onClientTypeMessage = (ws: WebSocket, message: any) => {
     if (message.payload === CLIENT_TYPE.PLAYER) {
-        console.log("player connected to server")
         players.push(ws)
     } else if (message.payload === CLIENT_TYPE.REMOTE) {
-        console.log("remote connected to server")
         remotes.push(ws)
+
+        if (tokens) {
+            ws.send(
+                JSON.stringify({
+                    payload: tokens,
+                    type: MESSAGE_TOKEN
+                })
+            )
+        } else {
+            ws.send(
+                JSON.stringify({
+                    type: MESSAGE_UNAUTHORIZED
+                })
+            )
+        }
     }
+}
+
+const onRequestTokenMessage = async (ws: WebSocket, message: any) => {
+    if (tokens) {
+        const refreshed = await token(tokens.refresh_token, tokens.redirect_uri)
+        tokens = {
+            ...tokens,
+            ...refreshed
+        }
+        await storeTokens(tokens)
+
+        each(clients, (client) =>
+            client.send(
+                JSON.stringify({
+                    payload: tokens,
+                    type: MESSAGE_TOKEN
+                })
+            )
+        )
+    } else {
+        each(clients, (client) => {
+            client.send(
+                JSON.stringify({
+                    type: MESSAGE_UNAUTHORIZED
+                })
+            )
+        })
+    }
+}
+
+const onTokenMessage = async (ws: WebSocket, message: any) => {
+    tokens = message.payload as ISpotifyTokens
+    await storeTokens(tokens)
+    each(clients, (client) => {
+        client.send(JSON.stringify(message))
+    })
 }
 
 async function storeTokens(tokens: ISpotifyTokens) {
@@ -51,32 +100,9 @@ async function handleMessage(ws: WebSocket, message: any) {
         case MESSAGE_CLIENT_TYPE:
             return onClientTypeMessage(ws, message)
         case MESSAGE_TOKEN:
-            tokens = message.payload as ISpotifyTokens
-            await storeTokens(tokens)
-            each(players, (player) => {
-                player.send(JSON.stringify(message))
-            })
-            break
+            return onTokenMessage(ws, message)
         case MESSAGE_REQUEST_TOKEN:
-            if (tokens) {
-                const refreshed = await token(tokens.refresh_token, tokens.redirect_uri)
-                tokens = {
-                    ...tokens,
-                    ...refreshed
-                }
-                await storeTokens(tokens)
-                console.log("refreshed tokens")
-
-                each(players, (player) =>
-                    player.send(
-                        JSON.stringify({
-                            payload: tokens,
-                            type: MESSAGE_TOKEN
-                        })
-                    )
-                )
-            }
-            break
+            return onRequestTokenMessage(ws, message)
         default:
             console.log("unknown message type", message)
     }
@@ -99,12 +125,10 @@ export function onConnection(ws: WebSocket, req: IncomingMessage) {
         clients.splice(clients.indexOf(ws, 1))
 
         if (players.indexOf(ws) > -1) {
-            console.log("player disconnected to server")
             players.splice(players.indexOf(ws, 1))
         }
 
         if (remotes.indexOf(ws) > -1) {
-            console.log("remote disconnected to server")
             remotes.splice(remotes.indexOf(ws, 1))
         }
     })

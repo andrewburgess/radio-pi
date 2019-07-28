@@ -4,9 +4,9 @@ import { normalize } from "polished"
 import styled, { createGlobalStyle } from "styled-components"
 
 import { AppProvider } from "./context/app"
-import { authorize } from "./lib/spotify"
 import { SocketContext } from "./context/socket"
-import { CLIENT_TYPE, MESSAGE_CLIENT_TYPE, MESSAGE_TOKEN } from "./constants"
+import { CLIENT_TYPE, MESSAGE_CLIENT_TYPE } from "./constants"
+import MainPanel from "./components/MainPanel"
 
 const GlobalStyles = createGlobalStyle`
     ${normalize()}
@@ -14,7 +14,10 @@ const GlobalStyles = createGlobalStyle`
     @import url('https://fonts.googleapis.com/css?family=Raleway:500,700,900&display=swap');
 
     :root {
-        --primary-color: #f01c20;
+        --primary-color: #F01C20;
+        --spotify: #1DB954;
+
+        font-size: 62.5%;
     }
 
     html {
@@ -22,21 +25,20 @@ const GlobalStyles = createGlobalStyle`
         color: #fff;
         font-family: 'Raleway', sans-serif;
     }
+
+    html, body, #root {
+        height: 100%;
+        max-height: 100%;
+        min-height: 320px;
+    }
+
+    body {
+        font-size: 1.6rem;
+    }
 `
 
 export interface IAppProps {
     className?: string
-}
-
-const onAuthorizeClick = async (ws: WebSocket) => {
-    const tokens = await authorize()
-
-    ws.send(
-        JSON.stringify({
-            payload: tokens,
-            type: MESSAGE_TOKEN
-        })
-    )
 }
 
 const App: React.SFC<IAppProps> = (props) => {
@@ -58,28 +60,33 @@ const App: React.SFC<IAppProps> = (props) => {
 
     return (
         <AppProvider>
-            <GlobalStyles />
-            <div className={props.className}>
-                <header>
+            <>
+                <GlobalStyles />
+                <header className={props.className}>
                     <h1>
                         <span>REVOLT</span> RADIO
                     </h1>
                 </header>
-                <button type="button" onClick={() => onAuthorizeClick(ws)}>
-                    Authorize
-                </button>
-            </div>
+                <MainPanel />
+            </>
         </AppProvider>
     )
 }
 
 export default styled(App)`
-    h1 {
-        font-weight: 900;
-        text-align: center;
+    left: 0.5rem;
+    position: fixed;
+    right: 0.5rem;
+    top: 0.5rem;
 
-        span {
-            color: var(--primary-color);
-        }
+    h1 {
+        font-size: 3rem;
+        font-weight: 900;
+        margin: 0;
+        text-align: center;
+    }
+
+    h1 > span {
+        color: var(--primary-color);
     }
 `

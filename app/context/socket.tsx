@@ -5,14 +5,13 @@ export interface ISocketState {
     ws: WebSocket
 }
 
-const DEFAULT_STATE: ISocketState = {
-    ws: new WebSocket(`ws://${window.location.hostname}:3001/ws`)
-}
-
-const SocketContext = createContext<ISocketState>(DEFAULT_STATE)
+const SocketContext = createContext<ISocketState>({ ws: null } as any)
 
 const SocketProvider: React.SFC = (props) => {
-    return <SocketContext.Provider value={DEFAULT_STATE}>{props.children}</SocketContext.Provider>
+    const state: ISocketState = {
+        ws: new WebSocket(`ws://${window.location.hostname}:3001/ws`)
+    }
+    return <SocketContext.Provider value={state}>{props.children}</SocketContext.Provider>
 }
 
 export { SocketContext, SocketProvider }

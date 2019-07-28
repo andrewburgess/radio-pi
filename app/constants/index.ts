@@ -3,6 +3,7 @@ export const DOCUMENT_TOKENS = "TOKENS"
 export const MESSAGE_CLIENT_TYPE = "client:type"
 export const MESSAGE_REQUEST_TOKEN = "player:request-token"
 export const MESSAGE_TOKEN = "player:token"
+export const MESSAGE_UNAUTHORIZED = "player:unauthorized"
 
 export enum CLIENT_TYPE {
     PLAYER = "player",
