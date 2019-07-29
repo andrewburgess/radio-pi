@@ -1,15 +1,17 @@
 import * as React from "react"
 import { createContext, useContext, useEffect, useReducer } from "react"
 
-import { MESSAGE_TOKEN, MESSAGE_UNAUTHORIZED } from "../constants"
+import { MESSAGE_TOKEN, MESSAGE_UNAUTHORIZED, ISpotifyTokens, AUTHORIZED_STATE } from "../constants"
 import { SocketContext } from "./socket"
 
 export interface IAppState {
-    authorized: boolean | null
+    authorized: AUTHORIZED_STATE
+    tokens: ISpotifyTokens | null
 }
 
 const DEFAULT_STATE: IAppState = {
-    authorized: null
+    authorized: AUTHORIZED_STATE.UNKNOWN,
+    tokens: null
 }
 
 const AppContext = createContext<[IAppState, React.Dispatch<any>]>([DEFAULT_STATE, () => {}])
@@ -19,12 +21,14 @@ function reducer(state: IAppState, action: any): IAppState {
         case MESSAGE_TOKEN:
             return {
                 ...state,
-                authorized: true
+                authorized: AUTHORIZED_STATE.AUTHORIZED,
+                tokens: action.payload
             }
         case MESSAGE_UNAUTHORIZED:
             return {
                 ...state,
-                authorized: false
+                authorized: AUTHORIZED_STATE.UNAUTHORIZED,
+                tokens: null
             }
         default:
             return state

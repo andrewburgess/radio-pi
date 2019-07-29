@@ -4,6 +4,7 @@ import styled from "styled-components"
 
 import { AppContext } from "../context/app"
 import Authorize from "./Authorize"
+import { AUTHORIZED_STATE } from "../constants"
 
 export interface IMainPanelProps {
     className?: string
@@ -12,11 +13,15 @@ export interface IMainPanelProps {
 const MainPanel: React.SFC<IMainPanelProps> = (props) => {
     const [context] = React.useContext(AppContext)
 
-    if (context.authorized === null) {
+    if (context.authorized === AUTHORIZED_STATE.UNKNOWN) {
         return <div className={classnames(props.className, "loading")}>Loading...</div>
     }
 
-    return <div className={props.className}>{context.authorized ? <div>Authorized</div> : <Authorize />}</div>
+    return (
+        <div className={props.className}>
+            {context.authorized === AUTHORIZED_STATE.AUTHORIZED ? <div>Authorized</div> : <Authorize />}
+        </div>
+    )
 }
 
 export default styled(MainPanel)`
