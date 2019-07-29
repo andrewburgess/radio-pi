@@ -14,6 +14,7 @@ const GlobalStyles = createGlobalStyle`
     @import url('https://fonts.googleapis.com/css?family=Raleway:500,700,900&display=swap');
 
     :root {
+        --background-color: #131114;
         --primary-color: #F01C20;
         --spotify: #1DB954;
 
@@ -21,7 +22,7 @@ const GlobalStyles = createGlobalStyle`
     }
 
     html {
-        background-color: #131114;
+        background-color: var(--background-color);
         color: #fff;
         font-family: 'Raleway', sans-serif;
     }
@@ -34,6 +35,15 @@ const GlobalStyles = createGlobalStyle`
 
     body {
         font-size: 1.6rem;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    h1, h2, h3, h4, h5, h6, ul {
+        margin: 0;
+        padding: 0;
     }
 `
 
@@ -74,10 +84,12 @@ const App: React.SFC<IAppProps> = (props) => {
 }
 
 export default styled(App)`
-    left: 0.5rem;
+    background-color: var(--background-color);
+    left: 0;
+    padding: 0.5rem;
     position: fixed;
-    right: 0.5rem;
-    top: 0.5rem;
+    right: 0;
+    top: 0;
 
     h1 {
         font-size: 3rem;
