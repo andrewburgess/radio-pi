@@ -16,6 +16,11 @@ export enum CLIENT_TYPE {
     REMOTE = "remote"
 }
 
+export enum RADIO_BAND {
+    AM,
+    FM
+}
+
 export interface ISpotifyTokens {
     access_token: string
     expires_in: number
@@ -23,4 +28,10 @@ export interface ISpotifyTokens {
     refresh_token: string
     scope: string
     token_type: "Bearer"
+}
+
+export interface IStation {
+    band: RADIO_BAND
+    frequency: number
+    spotifyItem: number | null
 }

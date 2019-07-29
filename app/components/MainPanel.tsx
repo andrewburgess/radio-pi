@@ -5,6 +5,7 @@ import styled from "styled-components"
 import { AppContext } from "../context/app"
 import Authorize from "./Authorize"
 import { AUTHORIZED_STATE } from "../constants"
+import Radio from "./Radio"
 
 export interface IMainPanelProps {
     className?: string
@@ -19,7 +20,7 @@ const MainPanel: React.SFC<IMainPanelProps> = (props) => {
 
     return (
         <div className={props.className}>
-            {context.authorized === AUTHORIZED_STATE.AUTHORIZED ? <div>Authorized</div> : <Authorize />}
+            {context.authorized === AUTHORIZED_STATE.AUTHORIZED ? <Radio /> : <Authorize />}
         </div>
     )
 }
@@ -28,7 +29,7 @@ export default styled(MainPanel)`
     height: 100%;
     width: 100%;
 
-    & {
+    &.loading {
         align-items: center;
         display: flex;
         font-size: 2.5rem;
