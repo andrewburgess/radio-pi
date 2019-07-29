@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useReducer } from "react"
 
 import { MESSAGE_TOKEN, MESSAGE_UNAUTHORIZED, ISpotifyTokens, AUTHORIZED_STATE } from "../constants"
 import { SocketContext } from "./socket"
+import { createActionPayload, createAction, ActionsUnion } from "./actions"
 
 export interface IAppState {
     authorized: AUTHORIZED_STATE
@@ -14,9 +15,9 @@ const DEFAULT_STATE: IAppState = {
     tokens: null
 }
 
-const AppContext = createContext<[IAppState, React.Dispatch<any>]>([DEFAULT_STATE, () => {}])
+const AppContext = createContext<[IAppState, React.Dispatch<AppActions>]>([DEFAULT_STATE, () => {}])
 
-function reducer(state: IAppState, action: any): IAppState {
+function reducer(state: IAppState, action: AppActions): IAppState {
     switch (action.type) {
         case MESSAGE_TOKEN:
             return {
@@ -52,4 +53,9 @@ const AppProvider: React.SFC = (props) => {
     return <AppContext.Provider value={[state, dispatch]}>{props.children}</AppContext.Provider>
 }
 
+export const AppActions = {
+    onAuthorized: createActionPayload<typeof MESSAGE_TOKEN, ISpotifyTokens>(MESSAGE_TOKEN),
+    onUnauthorized: createAction<typeof MESSAGE_UNAUTHORIZED>(MESSAGE_UNAUTHORIZED)
+}
+export type AppActions = ActionsUnion<typeof AppActions>
 export { AppContext, AppProvider }

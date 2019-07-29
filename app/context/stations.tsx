@@ -23,6 +23,12 @@ function reducer(state: IStationState, action: StationActions): IStationState {
                 ...state,
                 loading: true
             }
+        case ACTION_LOAD_STATIONS_COMPLETE:
+            return {
+                ...state,
+                loading: false,
+                stations: action.payload
+            }
         default:
             return state
     }

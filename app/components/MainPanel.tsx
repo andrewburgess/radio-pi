@@ -3,6 +3,7 @@ import * as React from "react"
 import styled from "styled-components"
 
 import { AppContext } from "../context/app"
+import { StationProvider } from "../context/stations"
 import Authorize from "./Authorize"
 import { AUTHORIZED_STATE } from "../constants"
 import Radio from "./Radio"
@@ -20,7 +21,13 @@ const MainPanel: React.SFC<IMainPanelProps> = (props) => {
 
     return (
         <div className={props.className}>
-            {context.authorized === AUTHORIZED_STATE.AUTHORIZED ? <Radio /> : <Authorize />}
+            {context.authorized === AUTHORIZED_STATE.AUTHORIZED ? (
+                <StationProvider>
+                    <Radio />
+                </StationProvider>
+            ) : (
+                <Authorize />
+            )}
         </div>
     )
 }
