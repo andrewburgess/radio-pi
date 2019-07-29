@@ -2,6 +2,7 @@ import * as classnames from "classnames"
 import { filter, map } from "lodash"
 import * as React from "react"
 import { useContext, useState } from "react"
+import posed, { PoseGroup } from "react-pose"
 import styled from "styled-components"
 
 import { RADIO_BAND } from "../constants"
@@ -11,8 +12,19 @@ export interface IStationListProps {
     className?: string
 }
 
+const Station = posed.li({
+    enter: {
+        x: 0,
+        transition: ({ i }: any) => ({ delay: Math.min((i + 1) * 30, 1000), duration: 350, ease: "easeOut" })
+    },
+    exit: {
+        x: ({ band }: any) => (band === RADIO_BAND.AM ? "-150%" : "150%"),
+        transition: ({ i }: any) => ({ delay: Math.min(i * 30, 1000), duration: 350, ease: "easeIn" })
+    }
+})
+
 const StationList: React.SFC<IStationListProps> = (props) => {
-    const [band, setBand] = useState(RADIO_BAND.FM)
+    const [band, setBand] = useState(RADIO_BAND.AM)
     const [{ loading, stations }] = useContext(StationContext)
 
     if (loading) {
@@ -23,11 +35,10 @@ const StationList: React.SFC<IStationListProps> = (props) => {
         )
     }
 
-    const amStations = filter(stations, (station) => station.band === RADIO_BAND.AM)
-    const fmStations = filter(stations, (station) => station.band === RADIO_BAND.FM)
+    const currentStations = filter(stations, (station) => station.band === band)
 
     return (
-        <div className={classnames(props.className, { am: band === RADIO_BAND.AM, fm: band === RADIO_BAND.FM })}>
+        <div className={classnames(props.className)}>
             <h2>Stations</h2>
             <div className="bands">
                 <button
@@ -45,35 +56,32 @@ const StationList: React.SFC<IStationListProps> = (props) => {
                     FM
                 </button>
             </div>
+
             <div className="stations">
-                {amStations.length ? (
-                    <ul className="am">
-                        {map(amStations, (station) => (
-                            <li key={station.frequency}>
-                                <h3>{station.frequency}</h3>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <div className="am empty">no stations are set up</div>
-                )}
-                {fmStations.length ? (
-                    <ul className="fm">
-                        {map(fmStations, (station) => (
-                            <li key={station.frequency}>
-                                <h3>{station.frequency}</h3>
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <div className="fm empty">no stations are set up</div>
-                )}
+                <ul>
+                    <PoseGroup>
+                        {currentStations.length ? (
+                            map(currentStations, (station, index) => (
+                                <Station band={station.band} key={station.frequency} i={index}>
+                                    <h3>{station.frequency}</h3>
+                                </Station>
+                            ))
+                        ) : (
+                            <Station band={band} className="empty" key={`empty${band}`} i={0}>
+                                <h3>no stations are set up</h3>
+                            </Station>
+                        )}
+                    </PoseGroup>
+                </ul>
             </div>
         </div>
     )
 }
 
 export default styled(StationList)`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     padding: 0 1rem;
 
     .empty,
@@ -116,7 +124,8 @@ export default styled(StationList)`
     }
 
     .stations {
-        position: relative;
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
     li {
@@ -124,21 +133,23 @@ export default styled(StationList)`
         display: flex;
         list-style: none;
 
-        & + li {
-            border-top: 1px dotted rgba(255, 255, 255, 0.3);
-            margin-top: 1.25rem;
-            padding-top: 1.25rem;
-        }
-
         h3 {
             flex: 0 0 84px;
             font-size: 3rem;
-            margin: 0 1rem 0 0;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
         }
 
         div {
             font-size: 2rem;
             font-weight: 700;
+        }
+
+        &.empty {
+            h3 {
+                flex: none;
+                font-size: 2.8rem;
+            }
         }
     }
 `

@@ -31,6 +31,7 @@ const GlobalStyles = createGlobalStyle`
         height: 100%;
         max-height: 100%;
         min-height: 320px;
+        overflow: hidden;
     }
 
     body {
@@ -88,8 +89,9 @@ export default styled(App)`
     left: 0;
     padding: 0.5rem;
     position: fixed;
-    right: 0;
     top: 0;
+    max-width: 100vw;
+    width: 100%;
 
     h1 {
         font-size: 3rem;

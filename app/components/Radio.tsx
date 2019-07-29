@@ -19,6 +19,7 @@ export default styled(Radio)`
     align-self: stretch;
     display: flex;
     flex-direction: column;
+    height: 100vh;
     padding: 6rem 0 2rem;
     width: 100%;
 `
