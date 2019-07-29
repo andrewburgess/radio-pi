@@ -39,7 +39,6 @@ const StationList: React.SFC<IStationListProps> = (props) => {
 
     return (
         <div className={classnames(props.className)}>
-            <h2>Stations</h2>
             <div className="bands">
                 <button
                     className={classnames({ active: band === RADIO_BAND.AM })}
@@ -89,12 +88,6 @@ export default styled(StationList)`
         color: rgba(255, 255, 255, 0.3);
         font-style: italic;
         text-align: center;
-    }
-
-    h2 {
-        font-size: 2.4rem;
-        padding: 0 0 1rem 0;
-        text-transform: uppercase;
     }
 
     .bands {
