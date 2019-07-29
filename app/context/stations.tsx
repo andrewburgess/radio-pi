@@ -6,7 +6,7 @@ import { IStation } from "../constants"
 
 export interface IStationState {
     loading: boolean
-    stations: IStation[]
+    stations: Array<IStation>
 }
 
 const DEFAULT_STATE: IStationState = {
@@ -37,7 +37,18 @@ function reducer(state: IStationState, action: StationActions): IStationState {
 const StationProvider: React.SFC = (props) => {
     const [state, dispatch] = useReducer(reducer, DEFAULT_STATE)
 
-    useEffect(() => {}, [])
+    useEffect(() => {
+        dispatch(StationActions.loadStations())
+
+        const loadStations = async () => {
+            const response = await fetch("/api/stations")
+            const stations = await response.json()
+
+            dispatch(StationActions.loadStationsComplete(stations))
+        }
+
+        loadStations()
+    }, [])
 
     return <StationContext.Provider value={[state, dispatch]}>{props.children}</StationContext.Provider>
 }

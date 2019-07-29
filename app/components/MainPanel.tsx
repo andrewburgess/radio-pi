@@ -20,7 +20,9 @@ const MainPanel: React.SFC<IMainPanelProps> = (props) => {
     }
 
     return (
-        <div className={props.className}>
+        <div
+            className={classnames(props.className, { authorize: context.authorized === AUTHORIZED_STATE.UNAUTHORIZED })}
+        >
             {context.authorized === AUTHORIZED_STATE.AUTHORIZED ? (
                 <StationProvider>
                     <Radio />
@@ -36,6 +38,7 @@ export default styled(MainPanel)`
     height: 100%;
     width: 100%;
 
+    &.authorize,
     &.loading {
         align-items: center;
         display: flex;

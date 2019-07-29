@@ -1,6 +1,5 @@
 import { IncomingMessage } from "http"
 import { each } from "lodash"
-import { promisify } from "util"
 import * as WebSocket from "ws"
 
 import {
@@ -13,15 +12,8 @@ import {
     MESSAGE_UNAUTHORIZED
 } from "../app/constants"
 
-import database from "./database"
 import { token } from "./spotify"
-
-const findOne = promisify(database.findOne.bind(database)) as <T>(query: any) => Promise<T>
-const update = promisify(database.update.bind(database)) as (
-    query: any,
-    updateQuery: any,
-    options?: Nedb.UpdateOptions | undefined
-) => Promise<{ numberOfUpdated: number; upsert: boolean }>
+import { findOne, update } from "./database"
 
 // General list of connected clients
 const clients: WebSocket[] = []
@@ -92,7 +84,11 @@ const onTokenMessage = async (ws: WebSocket, message: any) => {
 }
 
 async function storeTokens(tokens: ISpotifyTokens) {
-    return await update({ _id: DOCUMENT_TOKENS }, { _id: DOCUMENT_TOKENS, ...tokens }, { upsert: true })
+    if (tokens.error) {
+        return
+    }
+
+    return await update({ id: DOCUMENT_TOKENS }, { id: DOCUMENT_TOKENS, ...tokens }, { upsert: true })
 }
 
 async function handleMessage(ws: WebSocket, message: any) {
@@ -109,7 +105,7 @@ async function handleMessage(ws: WebSocket, message: any) {
 }
 
 export async function initialize() {
-    tokens = await findOne({ _id: DOCUMENT_TOKENS })
+    tokens = await findOne<ISpotifyTokens>({ id: DOCUMENT_TOKENS })
 }
 
 export function onConnection(ws: WebSocket, req: IncomingMessage) {
