@@ -11,27 +11,7 @@ try {
 } catch (err) {}
 
 let player: BrowserWindow | null
-let window: BrowserWindow | null
 let server: Server
-
-function createWindow() {
-    window = new BrowserWindow({
-        height: 768,
-        webPreferences: {
-            nodeIntegration: true,
-            plugins: true
-        },
-        width: 1024
-    })
-
-    window.loadURL("http://localhost:3000")
-    window.on("closed", () => {
-        if (player) {
-            player.close()
-        }
-        window = null
-    })
-}
 
 function createPlayerWindow() {
     let options: Electron.BrowserWindowConstructorOptions = {
@@ -91,17 +71,12 @@ function createPlayerWindow() {
 }
 
 app.on("activate", () => {
-    if (window === null) {
-        createWindow()
-    }
-
     if (player === null) {
         createPlayerWindow()
     }
 })
 
 app.on("ready", async () => {
-    createWindow()
     createPlayerWindow()
 
     server = await startServer()
