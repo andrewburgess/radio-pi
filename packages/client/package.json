@@ -1,0 +1,54 @@
+{
+  "name": "@revolt-radio/client",
+  "version": "0.1.0",
+  "description": "Client module for REVOLT Radio",
+  "author": "Andrew Burgess <andrew@andrewburgess.io>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andrewburgess/revolt-radio/issues"
+  },
+  "homepage": "https://github.com/andrewburgess/revolt-radio#readme",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build-storybook": "build-storybook -s public"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "proxy": "http://localhost:3001",
+  "dependencies": {
+    "@revolt-radio/common": "0.1.0",
+    "classnames": "^2.2.6",
+    "lodash": "^4.17.15",
+    "polished": "^3.4.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-icons": "^3.7.0",
+    "react-pose": "^4.0.8",
+    "react-scripts": "3.0.1",
+    "styled-components": "^4.3.2"
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^5.1.10",
+    "@storybook/addon-info": "^5.1.10",
+    "@storybook/addon-links": "^5.1.10",
+    "@storybook/addons": "^5.1.10",
+    "@storybook/react": "^5.1.10"
+  }
+}
