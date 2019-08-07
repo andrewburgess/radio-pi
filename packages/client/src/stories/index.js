@@ -1,14 +1,23 @@
+import { map, range } from "lodash"
 import React from "react"
+import styled from "styled-components"
 
 import { storiesOf } from "@storybook/react"
-import { action } from "@storybook/addon-actions"
 
-storiesOf("Button", module)
-    .add("with text", () => <button onClick={action("clicked")}>Hello Button</button>)
-    .add("with some emoji", () => (
-        <button onClick={action("clicked")}>
-            <span role="img" aria-label="so cool">
-                😀 😎 👍 💯
-            </span>
-        </button>
-    ))
+import ScrollView from "../components/ScrollView"
+
+const StoryScrollView = styled(ScrollView)`
+    height: 400px;
+    width: 600px;
+`
+
+storiesOf("ScrollView", module).add("default", () => {
+    const values = range(1, 100, 1)
+    return (
+        <StoryScrollView>
+            {map(values, (value) => (
+                <div>{value}</div>
+            ))}
+        </StoryScrollView>
+    )
+})
