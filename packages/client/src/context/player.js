@@ -1,39 +1,36 @@
 import { each } from "lodash"
 import React, { createContext, useContext, useEffect, useReducer } from "react"
 
-import { MESSAGE_TOKEN, MESSAGE_UNAUTHORIZED, AUTHORIZED_STATE } from "@revolt-radio/common"
+import { MESSAGE_PLAYER_CONNECTED, MESSAGE_PLAYER_DISCONNECTED } from "@revolt-radio/common"
 
 import { SocketContext, consumeMessage } from "./socket"
 
 const DEFAULT_STATE = {
-    authorized: AUTHORIZED_STATE.UNKNOWN,
-    tokens: null
+    deviceId: null
 }
 
-const AppContext = createContext([DEFAULT_STATE, () => {}])
+const PlayerContext = createContext([DEFAULT_STATE, () => {}])
 
-const ACCEPTED_MESSAGES = [MESSAGE_TOKEN, MESSAGE_UNAUTHORIZED]
+const ACCEPTED_MESSAGES = [MESSAGE_PLAYER_CONNECTED, MESSAGE_PLAYER_DISCONNECTED]
 
 function reducer(state, action) {
     switch (action.type) {
-        case MESSAGE_TOKEN:
+        case MESSAGE_PLAYER_CONNECTED:
             return {
                 ...state,
-                authorized: AUTHORIZED_STATE.AUTHORIZED,
-                tokens: action.payload
+                deviceId: action.payload
             }
-        case MESSAGE_UNAUTHORIZED:
+        case MESSAGE_PLAYER_DISCONNECTED:
             return {
                 ...state,
-                authorized: AUTHORIZED_STATE.UNAUTHORIZED,
-                tokens: null
+                deviceId: state.deviceId === action.payload ? null : state.deviceId
             }
         default:
             return state
     }
 }
 
-const AppProvider = (props) => {
+const PlayerProvider = (props) => {
     const [{ messages }, socketDispatch] = useContext(SocketContext)
     const [state, dispatch] = useReducer(reducer, DEFAULT_STATE)
 
@@ -45,10 +42,7 @@ const AppProvider = (props) => {
         }
     }, [messages])
 
-    return <AppContext.Provider value={[state, dispatch]}>{props.children}</AppContext.Provider>
+    return <PlayerContext.Provider value={[state, dispatch]}>{props.children}</PlayerContext.Provider>
 }
 
-export const onAuthorized = (tokens) => ({ type: MESSAGE_TOKEN, payload: tokens })
-export const onUnauthorized = () => ({ type: MESSAGE_UNAUTHORIZED })
-
-export { AppContext, AppProvider }
+export { PlayerContext, PlayerProvider }

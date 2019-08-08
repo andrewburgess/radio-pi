@@ -1,11 +1,8 @@
-import React, { useContext, useEffect } from "react"
+import React from "react"
 import { normalize } from "polished"
 import styled, { createGlobalStyle } from "styled-components"
 
-import { CLIENT_TYPE, MESSAGE_CLIENT_TYPE } from "@revolt-radio/common"
-
 import { AppProvider } from "./context/app"
-import { SocketContext } from "./context/socket"
 import MainPanel from "./components/MainPanel"
 import { Colors } from "./style"
 
@@ -46,22 +43,6 @@ const GlobalStyles = createGlobalStyle`
 `
 
 const App = (props) => {
-    const { ws } = useContext(SocketContext)
-
-    useEffect(() => {
-        const notify = () =>
-            ws.send(
-                JSON.stringify({
-                    payload: CLIENT_TYPE.REMOTE,
-                    type: MESSAGE_CLIENT_TYPE
-                })
-            )
-        if (ws.readyState === WebSocket.OPEN) {
-            notify()
-        }
-        ws.addEventListener("open", () => notify())
-    }, [ws])
-
     return (
         <AppProvider>
             <>

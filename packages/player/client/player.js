@@ -1,8 +1,9 @@
 const {
     CLIENT_TYPE,
     MESSAGE_CLIENT_TYPE,
-    MESSAGE_TOKEN,
+    MESSAGE_PLAYER_CONNECTED,
     MESSAGE_REQUEST_TOKEN,
+    MESSAGE_TOKEN,
     SPOTIFY_PLAYER_EVENTS
 } = require("@revolt-radio/common")
 
@@ -47,7 +48,14 @@ window.onSpotifyWebPlaybackSDKReady = () => {
         }
     })
 
-    player.addListener(SPOTIFY_PLAYER_EVENTS.READY, ({ device_id }) => {})
+    player.addListener(SPOTIFY_PLAYER_EVENTS.READY, ({ device_id }) => {
+        ws.send(
+            JSON.stringify({
+                type: MESSAGE_PLAYER_CONNECTED,
+                payload: device_id
+            })
+        )
+    })
 
     player.connect()
 }

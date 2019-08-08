@@ -2,6 +2,8 @@ module.exports.DOCUMENT_STATIONS = "STATIONS"
 module.exports.DOCUMENT_TOKENS = "TOKENS"
 
 module.exports.MESSAGE_CLIENT_TYPE = "client:type"
+module.exports.MESSAGE_PLAYER_CONNECTED = "player:connected"
+module.exports.MESSAGE_PLAYER_DISCONNECTED = "player:disconnected"
 module.exports.MESSAGE_REQUEST_TOKEN = "player:request-token"
 module.exports.MESSAGE_TOKEN = "player:token"
 module.exports.MESSAGE_UNAUTHORIZED = "player:unauthorized"

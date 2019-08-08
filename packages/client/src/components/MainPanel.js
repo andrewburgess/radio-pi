@@ -5,6 +5,7 @@ import styled from "styled-components"
 import { AUTHORIZED_STATE } from "@revolt-radio/common"
 
 import { AppContext } from "../context/app"
+import { PlayerProvider } from "../context/player"
 import { StationProvider } from "../context/stations"
 import Authorize from "./Authorize"
 import Radio from "./Radio"
@@ -22,7 +23,9 @@ const MainPanel = (props) => {
         >
             {context.authorized === AUTHORIZED_STATE.AUTHORIZED ? (
                 <StationProvider>
-                    <Radio />
+                    <PlayerProvider>
+                        <Radio />
+                    </PlayerProvider>
                 </StationProvider>
             ) : (
                 <Authorize />

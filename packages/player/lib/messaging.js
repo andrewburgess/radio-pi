@@ -1,11 +1,13 @@
 const { each } = require("lodash")
 
 const {
-    MESSAGE_CLIENT_TYPE,
     CLIENT_TYPE,
-    MESSAGE_TOKEN,
-    MESSAGE_REQUEST_TOKEN,
     DOCUMENT_TOKENS,
+    MESSAGE_CLIENT_TYPE,
+    MESSAGE_PLAYER_CONNECTED,
+    MESSAGE_PLAYER_DISCONNECTED,
+    MESSAGE_REQUEST_TOKEN,
+    MESSAGE_TOKEN,
     MESSAGE_UNAUTHORIZED
 } = require("@revolt-radio/common")
 
@@ -34,6 +36,19 @@ const onClientTypeMessage = (ws, message) => {
                     type: MESSAGE_TOKEN
                 })
             )
+
+            setTimeout(() => {
+                each(players, (player) => {
+                    if (player.deviceId) {
+                        ws.send(
+                            JSON.stringify({
+                                type: MESSAGE_PLAYER_CONNECTED,
+                                payload: player.deviceId
+                            })
+                        )
+                    }
+                })
+            }, 1000)
         } else {
             ws.send(
                 JSON.stringify({
@@ -42,6 +57,19 @@ const onClientTypeMessage = (ws, message) => {
             )
         }
     }
+}
+
+const onPlayerConnectedMessage = (ws, message) => {
+    ws.deviceId = message.payload
+
+    each(remotes, (remote) =>
+        remote.send(
+            JSON.stringify({
+                type: MESSAGE_PLAYER_CONNECTED,
+                payload: message.payload
+            })
+        )
+    )
 }
 
 const onRequestTokenMessage = async (ws, message) => {
@@ -92,10 +120,13 @@ async function handleMessage(ws, message) {
     switch (message.type) {
         case MESSAGE_CLIENT_TYPE:
             return onClientTypeMessage(ws, message)
-        case MESSAGE_TOKEN:
-            return onTokenMessage(ws, message)
+        case MESSAGE_PLAYER_CONNECTED:
+            console.log("player connected")
+            return onPlayerConnectedMessage(ws, message)
         case MESSAGE_REQUEST_TOKEN:
             return onRequestTokenMessage(ws, message)
+        case MESSAGE_TOKEN:
+            return onTokenMessage(ws, message)
         default:
             console.log("unknown message type", message)
     }
@@ -119,6 +150,16 @@ module.exports.onConnection = (ws) => {
 
         if (players.indexOf(ws) > -1) {
             players.splice(players.indexOf(ws, 1))
+            if (ws.deviceId) {
+                each(remotes, (remote) =>
+                    remote.send(
+                        JSON.stringify({
+                            type: MESSAGE_PLAYER_DISCONNECTED,
+                            payload: ws.deviceId
+                        })
+                    )
+                )
+            }
         }
 
         if (remotes.indexOf(ws) > -1) {
