@@ -7,6 +7,7 @@ import styled from "styled-components"
 import { RADIO_BAND } from "@revolt-radio/common"
 
 import { StationContext } from "../context/stations"
+import { Colors } from "../style"
 
 const Station = posed.li({
     enter: {
@@ -106,7 +107,7 @@ export default styled(StationList)`
             &.active {
                 background: rgba(255, 255, 255, 0.05);
                 border: 1px solid rgba(255, 255, 255, 0.3);
-                color: var(--primary-color);
+                color: ${Colors.primary};
                 font-weight: bold;
             }
         }

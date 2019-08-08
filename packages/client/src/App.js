@@ -7,6 +7,7 @@ import { CLIENT_TYPE, MESSAGE_CLIENT_TYPE } from "@revolt-radio/common"
 import { AppProvider } from "./context/app"
 import { SocketContext } from "./context/socket"
 import MainPanel from "./components/MainPanel"
+import { Colors } from "./style"
 
 const GlobalStyles = createGlobalStyle`
     ${normalize()}
@@ -14,15 +15,11 @@ const GlobalStyles = createGlobalStyle`
     @import url('https://fonts.googleapis.com/css?family=Raleway:500,700,900&display=swap');
 
     :root {
-        --background-color: #131114;
-        --primary-color: #F01C20;
-        --spotify: #1DB954;
-
         font-size: 62.5%;
     }
 
     html {
-        background-color: var(--background-color);
+        background-color: ${Colors.background};
         color: #fff;
         font-family: 'Raleway', sans-serif;
     }
@@ -81,7 +78,7 @@ const App = (props) => {
 }
 
 export default styled(App)`
-    background-color: var(--background-color);
+    background-color: ${Colors.background};
     left: 0;
     padding: 0.5rem;
     position: fixed;
@@ -97,6 +94,6 @@ export default styled(App)`
     }
 
     h1 > span {
-        color: var(--primary-color);
+        color: ${Colors.primary};
     }
 `
