@@ -1,17 +1,22 @@
 import { each } from "lodash"
 import React, { createContext, useContext, useEffect, useReducer } from "react"
 
-import { MESSAGE_PLAYER_CONNECTED, MESSAGE_PLAYER_DISCONNECTED } from "@revolt-radio/common"
+import {
+    MESSAGE_PLAYER_CONNECTED,
+    MESSAGE_PLAYER_DISCONNECTED,
+    MESSAGE_PLAYER_STATE_CHANGED
+} from "@revolt-radio/common"
 
 import { SocketContext, consumeMessage } from "./socket"
 
 const DEFAULT_STATE = {
-    deviceId: null
+    deviceId: null,
+    playback: null
 }
 
 const PlayerContext = createContext([DEFAULT_STATE, () => {}])
 
-const ACCEPTED_MESSAGES = [MESSAGE_PLAYER_CONNECTED, MESSAGE_PLAYER_DISCONNECTED]
+const ACCEPTED_MESSAGES = [MESSAGE_PLAYER_CONNECTED, MESSAGE_PLAYER_DISCONNECTED, MESSAGE_PLAYER_STATE_CHANGED]
 
 function reducer(state, action) {
     switch (action.type) {
@@ -24,6 +29,11 @@ function reducer(state, action) {
             return {
                 ...state,
                 deviceId: state.deviceId === action.payload ? null : state.deviceId
+            }
+        case MESSAGE_PLAYER_STATE_CHANGED:
+            return {
+                ...state,
+                playback: action.payload
             }
         default:
             return state
@@ -40,7 +50,7 @@ const PlayerProvider = (props) => {
             each(acceptedMessages, (message) => dispatch(message))
             each(acceptedMessages, (message) => socketDispatch(consumeMessage(message)))
         }
-    }, [messages])
+    }, [messages, socketDispatch])
 
     return <PlayerContext.Provider value={[state, dispatch]}>{props.children}</PlayerContext.Provider>
 }

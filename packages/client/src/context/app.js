@@ -43,7 +43,7 @@ const AppProvider = (props) => {
             each(acceptedMessages, (message) => dispatch(message))
             each(acceptedMessages, (message) => socketDispatch(consumeMessage(message)))
         }
-    }, [messages])
+    }, [messages, socketDispatch])
 
     return <AppContext.Provider value={[state, dispatch]}>{props.children}</AppContext.Provider>
 }

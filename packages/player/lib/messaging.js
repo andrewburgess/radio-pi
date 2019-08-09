@@ -6,6 +6,7 @@ const {
     MESSAGE_CLIENT_TYPE,
     MESSAGE_PLAYER_CONNECTED,
     MESSAGE_PLAYER_DISCONNECTED,
+    MESSAGE_PLAYER_STATE_CHANGED,
     MESSAGE_REQUEST_TOKEN,
     MESSAGE_TOKEN,
     MESSAGE_UNAUTHORIZED
@@ -72,6 +73,17 @@ const onPlayerConnectedMessage = (ws, message) => {
     )
 }
 
+const onPlayerStateChanged = (ws, message) => {
+    each(remotes, (remote) =>
+        remote.send(
+            JSON.stringify({
+                type: MESSAGE_PLAYER_STATE_CHANGED,
+                payload: message.payload
+            })
+        )
+    )
+}
+
 const onRequestTokenMessage = async (ws, message) => {
     if (tokens) {
         const refreshed = await token(tokens.refresh_token, tokens.redirect_uri)
@@ -121,8 +133,9 @@ async function handleMessage(ws, message) {
         case MESSAGE_CLIENT_TYPE:
             return onClientTypeMessage(ws, message)
         case MESSAGE_PLAYER_CONNECTED:
-            console.log("player connected")
             return onPlayerConnectedMessage(ws, message)
+        case MESSAGE_PLAYER_STATE_CHANGED:
+            return onPlayerStateChanged(ws, message)
         case MESSAGE_REQUEST_TOKEN:
             return onRequestTokenMessage(ws, message)
         case MESSAGE_TOKEN:

@@ -2,6 +2,7 @@ const {
     CLIENT_TYPE,
     MESSAGE_CLIENT_TYPE,
     MESSAGE_PLAYER_CONNECTED,
+    MESSAGE_PLAYER_STATE_CHANGED,
     MESSAGE_REQUEST_TOKEN,
     MESSAGE_TOKEN,
     SPOTIFY_PLAYER_EVENTS
@@ -53,6 +54,15 @@ window.onSpotifyWebPlaybackSDKReady = () => {
             JSON.stringify({
                 type: MESSAGE_PLAYER_CONNECTED,
                 payload: device_id
+            })
+        )
+    })
+
+    player.addListener(SPOTIFY_PLAYER_EVENTS.PLAYER_STATE_CHANGED, (state) => {
+        ws.send(
+            JSON.stringify({
+                type: MESSAGE_PLAYER_STATE_CHANGED,
+                payload: state
             })
         )
     })

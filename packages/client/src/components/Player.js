@@ -6,8 +6,23 @@ import { PlayerContext } from "../context/player"
 import { Colors } from "../style"
 
 const Player = (props) => {
-    const [{ deviceId }] = useContext(PlayerContext)
-    return <div className={props.className}>{deviceId ? deviceId : "not connected"}</div>
+    const [{ deviceId, playback }] = useContext(PlayerContext)
+
+    if (!deviceId) {
+        return <div className={props.className}>not connected</div>
+    }
+
+    if (!playback || !playback.track_window.current_track) {
+        return <div className={props.className}>no track playing</div>
+    }
+
+    const currentTrack = playback.track_window.current_track
+
+    return (
+        <div className={props.className}>
+            <img src={currentTrack.album.images[0].url} />
+        </div>
+    )
 }
 
 export default styled(Player)`
