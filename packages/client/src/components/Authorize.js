@@ -23,7 +23,7 @@ const onAuthorizeClick = async (event, ws) => {
 }
 
 const Authorize = (props) => {
-    const { ws } = React.useContext(SocketContext)
+    const [{ ws }] = React.useContext(SocketContext)
 
     return (
         <div className={props.className}>
