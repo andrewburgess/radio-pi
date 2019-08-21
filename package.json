@@ -2,6 +2,7 @@
   "name": "root",
   "private": true,
   "scripts": {
+    "bootstrap": "lerna bootstrap",
     "start": "concurrently \"cd packages/player && npm run start\" \"cd packages/client && npm run start\""
   },
   "devDependencies": {
