@@ -46,12 +46,19 @@ export async function authorize() {
                 return null
             }
 
-            const message = qs.parse(event.data)
-            const code = message.code
+            try {
+                const message = JSON.parse(event.data)
 
-            const tokens = await getTokens(code)
+                if (message.type !== "SPOTIFY_AUTH") {
+                    return
+                }
 
-            return resolve(tokens)
+                const code = qs.parse(message.payload).code
+
+                const tokens = await getTokens(code)
+
+                return resolve(tokens)
+            } catch (e) {}
         }
 
         window.addEventListener("message", handleMessage)

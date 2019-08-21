@@ -9,7 +9,10 @@
     <body>
         <div id="root"></div>
         <script>
-            window.opener.postMessage(window.location.search.substring(1))
+            window.opener.postMessage(JSON.stringify({
+                payload: window.location.search.substring(1),
+                type: "SPOTIFY_AUTH"
+            }))
             window.close()
         </script>
     </body>
