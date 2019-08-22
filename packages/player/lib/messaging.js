@@ -22,6 +22,7 @@ const players = []
 // Clients that have identified as remotes
 const remotes = []
 
+let lastState = null
 let tokens = null
 
 const onClientTypeMessage = (ws, message) => {
@@ -49,6 +50,15 @@ const onClientTypeMessage = (ws, message) => {
                         )
                     }
                 })
+
+                if (lastState) {
+                    ws.send(
+                        JSON.stringify({
+                            type: MESSAGE_PLAYER_STATE_CHANGED,
+                            payload: lastState
+                        })
+                    )
+                }
             }, 1000)
         } else {
             ws.send(
@@ -74,6 +84,7 @@ const onPlayerConnectedMessage = (ws, message) => {
 }
 
 const onPlayerStateChanged = (ws, message) => {
+    lastState = message.payload
     each(remotes, (remote) =>
         remote.send(
             JSON.stringify({

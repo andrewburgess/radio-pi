@@ -1,23 +1,9 @@
-import { map, range } from "lodash"
 import React from "react"
-import styled from "styled-components"
 
 import { storiesOf } from "@storybook/react"
 
-import ScrollView from "../components/ScrollView"
+import AlbumArt from "../components/AlbumArt"
 
-const StoryScrollView = styled(ScrollView)`
-    height: 400px;
-    width: 600px;
-`
-
-storiesOf("ScrollView", module).add("default", () => {
-    const values = range(1, 100, 1)
-    return (
-        <StoryScrollView>
-            {map(values, (value) => (
-                <div>{value}</div>
-            ))}
-        </StoryScrollView>
-    )
+storiesOf("Album Art", module).add("default", () => {
+    return <AlbumArt src="https://i.scdn.co/image/2c8c0cea05bf3d3c070b7498d8d0b957c4cdec20" />
 })
