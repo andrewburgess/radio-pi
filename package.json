@@ -6,7 +6,7 @@
     "start": "concurrently \"cd packages/player && npm run start\" \"cd packages/client && npm run start\""
   },
   "devDependencies": {
-    "concurrently": "^4.1.1",
+    "concurrently": "^4.1.2",
     "lerna": "^3.16.4"
   }
 }
