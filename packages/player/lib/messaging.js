@@ -15,6 +15,14 @@ const {
 const { token } = require("./spotify")
 const { findOne, update } = require("./database")
 
+const MessageHandlers = {
+    [MESSAGE_CLIENT_TYPE]: onClientTypeMessage,
+    [MESSAGE_PLAYER_CONNECTED]: onPlayerConnectedMessage,
+    [MESSAGE_PLAYER_STATE_CHANGED]: onPlayerStateChanged,
+    [MESSAGE_REQUEST_TOKEN]: onRequestTokenMessage,
+    [MESSAGE_TOKEN]: onTokenMessage
+}
+
 // General list of connected clients
 const clients = []
 // Clients that have identified as players
@@ -140,21 +148,12 @@ async function storeTokens(tokens) {
 }
 
 async function handleMessage(ws, message) {
-    switch (message.type) {
-        case MESSAGE_CLIENT_TYPE:
-            return onClientTypeMessage(ws, message)
-        case MESSAGE_PLAYER_CONNECTED:
-            return onPlayerConnectedMessage(ws, message)
-        case MESSAGE_PLAYER_STATE_CHANGED:
-            return onPlayerStateChanged(ws, message)
-        case MESSAGE_REQUEST_TOKEN:
-            return onRequestTokenMessage(ws, message)
-        case MESSAGE_TOKEN:
-            return onTokenMessage(ws, message)
-        default:
+    if (MessageHandlers[message.type]) {
+        return MessageHandlers[message.type](ws, message)
+    }
+
             console.log("unknown message type", message)
     }
-}
 
 module.exports.initialize = async () => {
     tokens = await findOne({ id: DOCUMENT_TOKENS })
