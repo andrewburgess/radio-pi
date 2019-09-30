@@ -42,7 +42,7 @@ export default styled(Authorize)`
         box-shadow: inset 0 0 1.5rem 0.5rem ${lighten(0.1, Colors.spotify)};
         color: #fff;
         display: flex;
-        font-size: 5.5vw;
+        font-size: 5vw;
         min-height: 10rem;
         min-width: 25rem;
         padding: 2rem 2rem;

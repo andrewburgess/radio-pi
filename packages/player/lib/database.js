@@ -1,13 +1,5 @@
-const Datastore = require("nedb")
-const path = require("path")
-const { promisify } = require("util")
+const Store = require("electron-store")
 
-const database = new Datastore({
-    autoload: true,
-    filename: path.join(process.cwd(), "data", "database.db")
-})
+const store = new Store()
 
-module.exports = database
-
-module.exports.findOne = promisify(database.findOne.bind(database))
-module.exports.update = promisify(database.update.bind(database))
+module.exports = store

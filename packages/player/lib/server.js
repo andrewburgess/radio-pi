@@ -9,7 +9,7 @@ const { DOCUMENT_STATIONS, RADIO_BAND, SPOTIFY_STATION_TYPE } = require("@revolt
 
 const { initialize, onConnection } = require("./messaging")
 const { token } = require("./spotify")
-const { findOne, update } = require("./database")
+const database = require("./database")
 
 const app = express()
 app.use(cors())
@@ -32,27 +32,20 @@ app.post("/api/spotify/refresh", (req, res) => {
 })
 
 app.get("/api/stations", async (req, res) => {
-    const document = await findOne({ id: DOCUMENT_STATIONS })
+    const document = database.get(DOCUMENT_STATIONS)
 
     if (!document) {
-        await update(
-            { id: DOCUMENT_STATIONS },
+        database.set(DOCUMENT_STATIONS, [
             {
-                id: DOCUMENT_STATIONS,
-                stations: [
-                    {
-                        band: RADIO_BAND.FM,
-                        frequency: 92.5,
-                        spotifyItem: 1,
-                        type: SPOTIFY_STATION_TYPE.PLAYLIST
-                    }
-                ]
-            },
-            { upsert: true }
-        )
-        return res.json([])
+                band: RADIO_BAND.FM,
+                frequency: 92.5,
+                spotifyItem: 1,
+                type: SPOTIFY_STATION_TYPE.PLAYLIST
+            }
+        ])
+        return res.json(database.get(DOCUMENT_STATIONS))
     } else {
-        return res.json(document.stations)
+        return res.json(document)
     }
 })
 
@@ -63,6 +56,7 @@ socket.on("connection", onConnection)
 
 module.exports = async () => {
     await initialize()
+
     return server.listen(3001, () => {
         console.log("server listening on 3001")
     })

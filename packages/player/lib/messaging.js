@@ -13,15 +13,7 @@ const {
 } = require("@revolt-radio/common")
 
 const { token } = require("./spotify")
-const { findOne, update } = require("./database")
-
-const MessageHandlers = {
-    [MESSAGE_CLIENT_TYPE]: onClientTypeMessage,
-    [MESSAGE_PLAYER_CONNECTED]: onPlayerConnectedMessage,
-    [MESSAGE_PLAYER_STATE_CHANGED]: onPlayerStateChanged,
-    [MESSAGE_REQUEST_TOKEN]: onRequestTokenMessage,
-    [MESSAGE_TOKEN]: onTokenMessage
-}
+const database = require("./database")
 
 // General list of connected clients
 const clients = []
@@ -105,12 +97,14 @@ const onPlayerStateChanged = (ws, message) => {
 
 const onRequestTokenMessage = async (ws, message) => {
     if (tokens) {
-        const refreshed = await token(tokens.refresh_token, tokens.redirect_uri)
-        tokens = {
-            ...tokens,
-            ...refreshed
+        if (tokens.createdAt + tokens.expires_in * 1000 < new Date().getTime() - 60 * 1000) {
+            const refreshed = await token(tokens.refresh_token, tokens.redirect_uri)
+            tokens = {
+                ...tokens,
+                ...refreshed
+            }
+            await storeTokens(tokens)
         }
-        await storeTokens(tokens)
 
         each(clients, (client) =>
             client.send(
@@ -144,7 +138,10 @@ async function storeTokens(tokens) {
         return
     }
 
-    return await update({ id: DOCUMENT_TOKENS }, { id: DOCUMENT_TOKENS, ...tokens }, { upsert: true })
+    database.set(DOCUMENT_TOKENS, {
+        ...tokens,
+        createdAt: new Date().getTime()
+    })
 }
 
 async function handleMessage(ws, message) {
@@ -152,11 +149,11 @@ async function handleMessage(ws, message) {
         return MessageHandlers[message.type](ws, message)
     }
 
-            console.log("unknown message type", message)
-    }
+    console.log("unknown message type", message)
+}
 
 module.exports.initialize = async () => {
-    tokens = await findOne({ id: DOCUMENT_TOKENS })
+    tokens = database.get(DOCUMENT_TOKENS)
 }
 
 module.exports.onConnection = (ws) => {
@@ -189,4 +186,12 @@ module.exports.onConnection = (ws) => {
             remotes.splice(remotes.indexOf(ws, 1))
         }
     })
+}
+
+const MessageHandlers = {
+    [MESSAGE_CLIENT_TYPE]: onClientTypeMessage,
+    [MESSAGE_PLAYER_CONNECTED]: onPlayerConnectedMessage,
+    [MESSAGE_PLAYER_STATE_CHANGED]: onPlayerStateChanged,
+    [MESSAGE_REQUEST_TOKEN]: onRequestTokenMessage,
+    [MESSAGE_TOKEN]: onTokenMessage
 }
