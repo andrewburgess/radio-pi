@@ -42,14 +42,22 @@ export default styled(Authorize)`
         box-shadow: inset 0 0 1.5rem 0.5rem ${lighten(0.1, Colors.spotify)};
         color: #fff;
         display: flex;
-        font-size: 5vw;
+        font-size: 6.25vw;
+        justify-content: center;
         min-height: 10rem;
-        min-width: 25rem;
         padding: 2rem 2rem;
         text-transform: uppercase;
+        width: 93.75vw;
 
         & > svg {
             margin-right: 0.5em;
+        }
+    }
+
+    @media (min-width: 768px) {
+        button {
+            font-size: 4.8rem;
+            width: 72rem;
         }
     }
 `
