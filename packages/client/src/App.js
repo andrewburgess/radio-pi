@@ -1,8 +1,9 @@
 import React from "react"
 import { normalize } from "polished"
-import styled, { createGlobalStyle } from "styled-components"
+import { createGlobalStyle } from "styled-components"
 
 import { AppProvider } from "./context/app"
+import Header from "./components/Header"
 import MainPanel from "./components/MainPanel"
 import { Colors } from "./style"
 
@@ -47,34 +48,11 @@ const App = (props) => {
         <AppProvider>
             <>
                 <GlobalStyles />
-                <header className={props.className}>
-                    <h1>
-                        <span>REVOLT</span> RADIO
-                    </h1>
-                </header>
+                <Header />
                 <MainPanel />
             </>
         </AppProvider>
     )
 }
 
-export default styled(App)`
-    background-color: ${Colors.background};
-    left: 0;
-    padding: 0.5rem;
-    position: fixed;
-    top: 0;
-    max-width: 100vw;
-    width: 100%;
-
-    h1 {
-        font-size: 3rem;
-        font-weight: 900;
-        margin: 0;
-        text-align: center;
-    }
-
-    h1 > span {
-        color: ${Colors.primary};
-    }
-`
+export default App
