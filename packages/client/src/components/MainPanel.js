@@ -37,7 +37,6 @@ const MainPanel = (props) => {
 export default styled(MainPanel)`
     height: 100%;
     margin: 0 auto;
-    max-width: 1200px;
     width: 100%;
 
     &.authorize,
