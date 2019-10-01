@@ -1,12 +1,14 @@
 import React from "react"
 import styled from "styled-components"
 
+import { RADIO_BAND } from "@revolt-radio/common"
+
 import Dial from "./Dial"
 
 const StationDial = (props) => {
     return (
         <div className={props.className}>
-            <Dial />
+            <Dial band={RADIO_BAND.AM} freq={690} />
         </div>
     )
 }

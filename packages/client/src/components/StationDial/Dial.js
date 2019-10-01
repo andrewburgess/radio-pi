@@ -1,21 +1,33 @@
 import { map, range } from "lodash"
 import { darken, transparentize } from "polished"
-import React from "react"
+import React, { useRef, useEffect } from "react"
 import styled from "styled-components"
 
 import { Colors } from "../../style"
+import { RADIO_BAND } from "@revolt-radio/common"
 
 const AM_STATIONS = range(600, 1800, 100)
 const FM_STATIONS = range(88, 110, 2)
 
 const StationDial = (props) => {
+    const bandsRef = useRef(null)
+
+    useEffect(() => {
+        if (bandsRef.current === null) return
+
+        const $bands = bandsRef.current
+        const amount = props.band === RADIO_BAND.AM ? (props.freq - 550) / (1750 - 550) : (props.freq - 86) / (110 - 86)
+
+        $bands.style.transform = `translateX(${-1 * amount * 100}%)`
+    })
+
     return (
         <div className={props.className}>
             <div className="band__labels">
                 <div className="band__label band__label--fm">FM</div>
                 <div className="band__label band__label--am">AM</div>
             </div>
-            <div className="bands">
+            <div className="bands" ref={bandsRef}>
                 <div className="band band--fm">
                     <div className="band__freq--spacer"></div>
                     {map(FM_STATIONS, (freq) => (
@@ -45,36 +57,38 @@ const StationDial = (props) => {
 
 export default styled(StationDial)`
     .band__labels {
-        background-color: ${Colors.background};
-        display: none;
-        flex-direction: column;
         height: 20vh;
-        justify-content: space-around;
         position: relative;
-        width: 20vw;
+        width: 100%;
         z-index: 2;
     }
 
     .band__label {
-        align-items: center;
-        display: flex;
-        flex: none;
         font-family: "Roboto Mono";
-        font-size: 4vh;
-        justify-content: center;
-        height: 8vh;
         opacity: 0.2;
-        padding: 0.6rem 1rem;
-        text-align: center;
+        position: absolute;
+        transform: translateX(-50%);
+    }
+
+    .band__label--fm {
+        font-size: 8vh;
+        left: 15%;
+        top: 0;
+    }
+
+    .band__label--am {
+        font-size: 6vh;
+        bottom: 0;
+        left: 85%;
     }
 
     .band__selector {
-        background-color: ${transparentize(0.2, darken(0.2, "#ff5800"))};
-        border: 2px solid #ff5800;
-        box-shadow: 0 0 4px #ff5800, 0 0 8px ${transparentize(0.5, "#FF5800")},
-            0 0 12px ${transparentize(0.7, "#FF5800")};
+        background-color: ${transparentize(0.2, darken(0.2, Colors.dial))};
+        border: 2px solid ${Colors.dial};
+        box-shadow: 0 0 4px ${Colors.dial}, 0 0 8px ${transparentize(0.5, Colors.dial)},
+            0 0 12px ${transparentize(0.7, Colors.dial)};
         height: 16vh;
-        left: calc(50% + 10vw - 4px);
+        left: calc(50% - 4px);
         position: absolute;
         top: calc(50% - 8vh);
         width: 8px;
@@ -83,11 +97,14 @@ export default styled(StationDial)`
 
     .bands {
         flex: none;
-        justify-content: space-around;
         height: 20vh;
+        justify-content: space-around;
+        left: 50%;
         position: absolute;
-        width: 480vw;
         top: 0;
+        transform: translateX(-50%);
+        transition: transform cubic-bezier(0.64, -0.08, 0.51, 1.19) 1.5s;
+        width: 480vw;
         z-index: 1;
     }
 
