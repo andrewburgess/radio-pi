@@ -1,14 +1,12 @@
 import React from "react"
 import styled from "styled-components"
 
-import Player from "./Player"
-import StationList from "./StationList"
+import StationDial from "./StationDial"
 
 const Radio = (props) => {
     return (
         <div className={props.className}>
-            <StationList />
-            <Player />
+            <StationDial />
         </div>
     )
 }
@@ -19,5 +17,11 @@ export default styled(Radio)`
     flex-direction: column;
     height: 100vh;
     padding: 6rem 0 0;
+    position: relative;
     width: 100%;
+
+    ${StationDial} {
+        bottom: 0;
+        position: absolute;
+    }
 `
