@@ -46,7 +46,7 @@ async function refreshTokens() {
             )
         })
 
-        return
+        return false
     }
 
     tokens = {
@@ -54,13 +54,19 @@ async function refreshTokens() {
         ...refreshed
     }
     await storeTokens(tokens)
+
+    return true
 }
 
-const onClientTypeMessage = (ws, message) => {
+const onClientTypeMessage = async (ws, message) => {
     if (message.payload === CLIENT_TYPE.PLAYER) {
         players.push(ws)
     } else if (message.payload === CLIENT_TYPE.REMOTE) {
         remotes.push(ws)
+
+        if (tokensAreExpired()) {
+            await refreshTokens()
+        }
 
         if (!tokensAreExpired()) {
             ws.send(
