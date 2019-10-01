@@ -15,7 +15,8 @@ export default styled(Radio)`
     align-self: stretch;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    min-height: 100%;
+    min-height: -webkit-fill-available;
     padding: 6rem 0 0;
     position: relative;
     width: 100%;
