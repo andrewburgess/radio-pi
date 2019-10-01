@@ -46,7 +46,7 @@ const StationDial = (props) => {
 export default styled(StationDial)`
     .band__labels {
         background-color: ${Colors.background};
-        display: flex;
+        display: none;
         flex-direction: column;
         height: 20vh;
         justify-content: space-around;
@@ -57,6 +57,7 @@ export default styled(StationDial)`
 
     .band__label {
         align-items: center;
+        display: flex;
         flex: none;
         font-family: "Roboto Mono";
         font-size: 4vh;

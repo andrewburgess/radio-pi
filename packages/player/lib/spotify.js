@@ -4,26 +4,38 @@ const btoa = require("btoa")
 
 const API_ENDPOINT = "https://accounts.spotify.com"
 
-module.exports.token = async (code, redirectUri) => {
-    const authorization = `Basic ${btoa(
-        `${process.env.REACT_APP_SPOTIFY_CLIENT_ID}:${process.env.REACT_APP_SPOTIFY_CLIENT_SECRET}`
-    )}`
+function getAuthorization() {
+    return `Basic ${btoa(`${process.env.REACT_APP_SPOTIFY_CLIENT_ID}:${process.env.REACT_APP_SPOTIFY_CLIENT_SECRET}`)}`
+}
 
-    const params = qs.stringify({
-        code,
-        grant_type: "authorization_code",
-        redirect_uri: redirectUri
-    })
+async function requestToken(params) {
     const response = await fetch(`${API_ENDPOINT}/api/token`, {
         body: params,
         headers: {
-            authorization,
+            authorization: getAuthorization(),
             "content-type": "application/x-www-form-urlencoded"
         },
         method: "POST"
     })
 
-    const data = await response.json()
+    return await response.json()
+}
 
-    return data
+module.exports.refresh = async (refreshToken) => {
+    const params = qs.stringify({
+        grant_type: "refresh_token",
+        refresh_token: refreshToken
+    })
+
+    return await requestToken(params)
+}
+
+module.exports.token = async (code, redirectUri) => {
+    const params = qs.stringify({
+        code,
+        grant_type: "authorization_code",
+        redirect_uri: redirectUri
+    })
+
+    return await requestToken(params)
 }

@@ -12,7 +12,7 @@ const {
     MESSAGE_UNAUTHORIZED
 } = require("@revolt-radio/common")
 
-const { token } = require("./spotify")
+const { refresh } = require("./spotify")
 const database = require("./database")
 
 // General list of connected clients
@@ -25,13 +25,44 @@ const remotes = []
 let lastState = null
 let tokens = null
 
+/**
+ * Checks to see if the current set of tokens are expired. They are if they are
+ * null, or if the createdAt + expires_in is in at least 5 minutes
+ */
+function tokensAreExpired() {
+    const now = Date.now()
+    return !tokens || now - (tokens.createdAt + tokens.expires_in * 1000) >= 5 * 60 * 1000 * -1
+}
+
+async function refreshTokens() {
+    const refreshed = await refresh(tokens.refresh_token)
+
+    if (refreshed.error) {
+        each(clients, (client) => {
+            client.send(
+                JSON.stringify({
+                    type: MESSAGE_UNAUTHORIZED
+                })
+            )
+        })
+
+        return
+    }
+
+    tokens = {
+        ...tokens,
+        ...refreshed
+    }
+    await storeTokens(tokens)
+}
+
 const onClientTypeMessage = (ws, message) => {
     if (message.payload === CLIENT_TYPE.PLAYER) {
         players.push(ws)
     } else if (message.payload === CLIENT_TYPE.REMOTE) {
         remotes.push(ws)
 
-        if (tokens) {
+        if (!tokensAreExpired()) {
             ws.send(
                 JSON.stringify({
                     payload: tokens,
@@ -97,13 +128,8 @@ const onPlayerStateChanged = (ws, message) => {
 
 const onRequestTokenMessage = async (ws, message) => {
     if (tokens) {
-        if (tokens.createdAt + tokens.expires_in * 1000 < new Date().getTime() - 60 * 1000) {
-            const refreshed = await token(tokens.refresh_token, tokens.redirect_uri)
-            tokens = {
-                ...tokens,
-                ...refreshed
-            }
-            await storeTokens(tokens)
+        if (tokensAreExpired()) {
+            await refreshTokens()
         }
 
         each(clients, (client) =>

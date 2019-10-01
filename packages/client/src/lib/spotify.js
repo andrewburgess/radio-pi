@@ -65,7 +65,3 @@ export async function authorize() {
         window.open(AUTHORIZE_ENDPOINT)
     })
 }
-
-export async function refresh(refreshToken) {
-    return await getTokens(refreshToken)
-}
