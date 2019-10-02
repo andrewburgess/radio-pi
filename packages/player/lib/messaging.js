@@ -1,4 +1,5 @@
 const { each } = require("lodash")
+const log = require("debug")("revolt-radio:messaging")
 
 const {
     CLIENT_TYPE,
@@ -26,6 +27,7 @@ let lastState = null
 let tokens = null
 
 function sendMessage(ws, type, payload) {
+    log(`sending message ${type} :: %O`, payload)
     ws.send(
         JSON.stringify({
             payload,
@@ -44,9 +46,12 @@ function tokensAreExpired() {
 }
 
 async function refreshTokens() {
+    log(`refreshing tokens`)
+
     const refreshed = await refresh(tokens.refresh_token)
 
     if (refreshed.error) {
+        console.error(`failed to refresh tokens: ${refreshed.error_message}`)
         each(clients, (client) => sendMessage(client, MESSAGE_UNAUTHORIZED))
 
         return false
@@ -57,6 +62,8 @@ async function refreshTokens() {
         ...refreshed
     }
     await storeTokens(tokens)
+
+    log(`tokens refreshed`)
 
     return true
 }
@@ -133,6 +140,7 @@ async function storeTokens(tokens) {
 
 async function handleMessage(ws, message) {
     if (MessageHandlers[message.type]) {
+        log(`received message ${message.type} :: %O`, message.payload)
         return MessageHandlers[message.type](ws, message)
     }
 
@@ -156,6 +164,7 @@ module.exports.onConnection = (ws) => {
         clients.splice(clients.indexOf(ws, 1))
 
         if (players.indexOf(ws) > -1) {
+            log(`player disconnected`)
             players.splice(players.indexOf(ws, 1))
             if (ws.deviceId) {
                 each(remotes, (remote) => sendMessage(remote, MESSAGE_PLAYER_DISCONNECTED, ws.deviceId))
@@ -163,6 +172,7 @@ module.exports.onConnection = (ws) => {
         }
 
         if (remotes.indexOf(ws) > -1) {
+            log(`client disconnected`)
             remotes.splice(remotes.indexOf(ws, 1))
         }
     })
