@@ -25,6 +25,15 @@ const remotes = []
 let lastState = null
 let tokens = null
 
+function sendMessage(ws, type, payload) {
+    ws.send(
+        JSON.stringify({
+            payload,
+            type
+        })
+    )
+}
+
 /**
  * Checks to see if the current set of tokens are expired. They are if they are
  * null, or if the createdAt + expires_in is in at least 5 minutes
@@ -38,13 +47,7 @@ async function refreshTokens() {
     const refreshed = await refresh(tokens.refresh_token)
 
     if (refreshed.error) {
-        each(clients, (client) => {
-            client.send(
-                JSON.stringify({
-                    type: MESSAGE_UNAUTHORIZED
-                })
-            )
-        })
+        each(clients, (client) => sendMessage(client, MESSAGE_UNAUTHORIZED))
 
         return false
     }
@@ -69,40 +72,21 @@ const onClientTypeMessage = async (ws, message) => {
         }
 
         if (!tokensAreExpired()) {
-            ws.send(
-                JSON.stringify({
-                    payload: tokens,
-                    type: MESSAGE_TOKEN
-                })
-            )
+            sendMessage(ws, MESSAGE_TOKEN, tokens)
 
             setTimeout(() => {
                 each(players, (player) => {
                     if (player.deviceId) {
-                        ws.send(
-                            JSON.stringify({
-                                type: MESSAGE_PLAYER_CONNECTED,
-                                payload: player.deviceId
-                            })
-                        )
+                        sendMessage(ws, MESSAGE_PLAYER_CONNECTED, player.deviceId)
                     }
                 })
 
                 if (lastState) {
-                    ws.send(
-                        JSON.stringify({
-                            type: MESSAGE_PLAYER_STATE_CHANGED,
-                            payload: lastState
-                        })
-                    )
+                    sendMessage(ws, MESSAGE_PLAYER_STATE_CHANGED, lastState)
                 }
             }, 1000)
         } else {
-            ws.send(
-                JSON.stringify({
-                    type: MESSAGE_UNAUTHORIZED
-                })
-            )
+            sendMessage(ws, MESSAGE_UNAUTHORIZED)
         }
     }
 }
@@ -110,26 +94,12 @@ const onClientTypeMessage = async (ws, message) => {
 const onPlayerConnectedMessage = (ws, message) => {
     ws.deviceId = message.payload
 
-    each(remotes, (remote) =>
-        remote.send(
-            JSON.stringify({
-                type: MESSAGE_PLAYER_CONNECTED,
-                payload: message.payload
-            })
-        )
-    )
+    each(remotes, (remote) => sendMessage(remote, MESSAGE_PLAYER_CONNECTED, message.payload))
 }
 
 const onPlayerStateChanged = (ws, message) => {
     lastState = message.payload
-    each(remotes, (remote) =>
-        remote.send(
-            JSON.stringify({
-                type: MESSAGE_PLAYER_STATE_CHANGED,
-                payload: message.payload
-            })
-        )
-    )
+    each(remotes, (remote) => sendMessage(remote, MESSAGE_PLAYER_STATE_CHANGED, message.payload))
 }
 
 const onRequestTokenMessage = async (ws, message) => {
@@ -138,31 +108,16 @@ const onRequestTokenMessage = async (ws, message) => {
             await refreshTokens()
         }
 
-        each(clients, (client) =>
-            client.send(
-                JSON.stringify({
-                    payload: tokens,
-                    type: MESSAGE_TOKEN
-                })
-            )
-        )
+        each(clients, (client) => sendMessage(client, MESSAGE_TOKEN, tokens))
     } else {
-        each(clients, (client) => {
-            client.send(
-                JSON.stringify({
-                    type: MESSAGE_UNAUTHORIZED
-                })
-            )
-        })
+        each(clients, (client) => sendMessage(client, MESSAGE_UNAUTHORIZED))
     }
 }
 
 const onTokenMessage = async (ws, message) => {
     tokens = message.payload
     await storeTokens(tokens)
-    each(clients, (client) => {
-        client.send(JSON.stringify(message))
-    })
+    each(clients, (client) => sendMessage(client, message.type, message.payload))
 }
 
 async function storeTokens(tokens) {
@@ -203,14 +158,7 @@ module.exports.onConnection = (ws) => {
         if (players.indexOf(ws) > -1) {
             players.splice(players.indexOf(ws, 1))
             if (ws.deviceId) {
-                each(remotes, (remote) =>
-                    remote.send(
-                        JSON.stringify({
-                            type: MESSAGE_PLAYER_DISCONNECTED,
-                            payload: ws.deviceId
-                        })
-                    )
-                )
+                each(remotes, (remote) => sendMessage(remote, MESSAGE_PLAYER_DISCONNECTED, ws.deviceId))
             }
         }
 
