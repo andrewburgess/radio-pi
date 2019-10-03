@@ -59,7 +59,8 @@ async function refreshTokens() {
 
     tokens = {
         ...tokens,
-        ...refreshed
+        ...refreshed,
+        createdAt: Date.now()
     }
     await storeTokens(tokens)
 
