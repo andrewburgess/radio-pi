@@ -1,4 +1,4 @@
-# REVOLT Radio
+# RADIO PI
 
 Spotify in a real radio.
 

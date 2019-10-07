@@ -7,7 +7,7 @@ const Header = (props) => {
     return (
         <header className={props.className}>
             <h1>
-                <span>REVOLT</span> RADIO
+                <span>RADIO</span> PI
             </h1>
         </header>
     )

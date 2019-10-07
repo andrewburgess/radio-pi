@@ -1,13 +1,13 @@
 {
-  "name": "@revolt-radio/client",
+  "name": "@radio-pi/client",
   "version": "0.1.0",
-  "description": "Client module for REVOLT Radio",
+  "description": "Client module for Radio PI",
   "author": "Andrew Burgess <andrew@andrewburgess.io>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/andrewburgess/revolt-radio/issues"
+    "url": "https://github.com/andrewburgess/radio-pi/issues"
   },
-  "homepage": "https://github.com/andrewburgess/revolt-radio#readme",
+  "homepage": "https://github.com/andrewburgess/radio-pi#readme",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -33,7 +33,7 @@
   },
   "proxy": "http://localhost:3001",
   "dependencies": {
-    "@revolt-radio/common": "0.1.0",
+    "@radio-pi/common": "0.1.0",
     "classnames": "^2.2.6",
     "lodash": "^4.17.15",
     "polished": "^3.4.1",

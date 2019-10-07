@@ -4,7 +4,7 @@ import React, { useContext, useState } from "react"
 import posed, { PoseGroup } from "react-pose"
 import styled from "styled-components"
 
-import { RADIO_BAND } from "@revolt-radio/common"
+import { RADIO_BAND } from "@radio-pi/common"
 
 import { StationContext } from "../context/stations"
 import { Colors } from "../style"

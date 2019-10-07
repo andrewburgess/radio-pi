@@ -1,5 +1,5 @@
 const { each } = require("lodash")
-const log = require("debug")("revolt-radio:messaging")
+const log = require("debug")("radio-pi:messaging")
 
 const {
     CLIENT_TYPE,
@@ -11,7 +11,7 @@ const {
     MESSAGE_REQUEST_TOKEN,
     MESSAGE_TOKEN,
     MESSAGE_UNAUTHORIZED
-} = require("@revolt-radio/common")
+} = require("@radio-pi/common")
 
 const { refresh } = require("./spotify")
 const database = require("./database")

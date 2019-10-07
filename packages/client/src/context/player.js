@@ -5,7 +5,7 @@ import {
     MESSAGE_PLAYER_CONNECTED,
     MESSAGE_PLAYER_DISCONNECTED,
     MESSAGE_PLAYER_STATE_CHANGED
-} from "@revolt-radio/common"
+} from "@radio-pi/common"
 
 import { SocketContext, consumeMessage } from "./socket"
 

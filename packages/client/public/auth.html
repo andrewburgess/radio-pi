@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#000000" />
-        <title>REVOLT RADIO</title>
-    </head>
-    <body>
-        <div id="root"></div>
-        <script>
-            window.opener.postMessage(JSON.stringify({
-                payload: window.location.search.substring(1),
-                type: "SPOTIFY_AUTH"
-            }))
-            window.close()
-        </script>
-    </body>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>RADIO PI</title>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script>
+        window.opener.postMessage(JSON.stringify({
+            payload: window.location.search.substring(1),
+            type: "SPOTIFY_AUTH"
+        }))
+        window.close()
+    </script>
+</body>
+
 </html>

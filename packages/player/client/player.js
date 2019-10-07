@@ -6,7 +6,7 @@ const {
     MESSAGE_REQUEST_TOKEN,
     MESSAGE_TOKEN,
     SPOTIFY_PLAYER_EVENTS
-} = require("@revolt-radio/common")
+} = require("@radio-pi/common")
 
 let player
 const ws = new WebSocket(`ws://${window.location.hostname}:3001/ws`)
@@ -28,7 +28,7 @@ if (ws.readyState === WebSocket.OPEN) {
 
 window.onSpotifyWebPlaybackSDKReady = () => {
     player = new window.Spotify.Player({
-        name: "REVOLT Radio",
+        name: "Radio PI",
         getOAuthToken: async (cb) => {
             ws.addEventListener("message", (event) => {
                 const message = JSON.parse(event.data)

@@ -3,7 +3,7 @@ import React from "react"
 import { FaSpotify } from "react-icons/fa"
 import styled from "styled-components"
 
-import { MESSAGE_TOKEN } from "@revolt-radio/common"
+import { MESSAGE_TOKEN } from "@radio-pi/common"
 
 import { authorize } from "../lib/spotify"
 import { SocketContext } from "../context/socket"

@@ -1,20 +1,20 @@
 {
-    "name": "@revolt-radio/common",
+    "name": "@radio-pi/common",
     "version": "0.1.0",
-    "description": "Common types for REVOLT Radio",
+    "description": "Common types for Radio PI",
     "main": "index.ts",
     "scripts": {
         "test": "jest"
     },
     "repository": {
         "type": "git",
-        "url": "git+ssh://git@github.com/andrewburgess/revolt-radio.git"
+        "url": "git+ssh://git@github.com/andrewburgess/radio-pi.git"
     },
     "author": "Andrew Burgess <andrew@andrewburgess.io>",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/andrewburgess/revolt-radio/issues"
+        "url": "https://github.com/andrewburgess/radio-pi/issues"
     },
-    "homepage": "https://github.com/andrewburgess/revolt-radio#readme",
+    "homepage": "https://github.com/andrewburgess/radio-pi#readme",
     "dependencies": {}
 }

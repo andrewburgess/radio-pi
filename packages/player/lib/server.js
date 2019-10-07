@@ -5,7 +5,7 @@ const http = require("http")
 const path = require("path")
 const WebSocket = require("ws")
 
-const { DOCUMENT_STATIONS, RADIO_BAND, SPOTIFY_STATION_TYPE } = require("@revolt-radio/common")
+const { DOCUMENT_STATIONS, RADIO_BAND, SPOTIFY_STATION_TYPE } = require("@radio-pi/common")
 
 const { initialize, onConnection } = require("./messaging")
 const { token } = require("./spotify")

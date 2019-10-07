@@ -1,7 +1,7 @@
 import { each } from "lodash"
 import React, { createContext, useContext, useEffect, useReducer } from "react"
 
-import { MESSAGE_TOKEN, MESSAGE_UNAUTHORIZED, AUTHORIZED_STATE } from "@revolt-radio/common"
+import { MESSAGE_TOKEN, MESSAGE_UNAUTHORIZED, AUTHORIZED_STATE } from "@radio-pi/common"
 
 import { SocketContext, consumeMessage } from "./socket"
 
