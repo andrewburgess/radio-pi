@@ -2,7 +2,7 @@ import classnames from "classnames"
 import React from "react"
 import styled from "styled-components"
 
-import { AUTHORIZED_STATE } from "@radio-pi/common"
+import { AUTHORIZED_STATE } from "../constants"
 
 import { AppContext } from "../context/app"
 import { PlayerProvider } from "../context/player"

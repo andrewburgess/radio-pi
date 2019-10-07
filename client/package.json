@@ -33,7 +33,6 @@
   },
   "proxy": "http://localhost:3001",
   "dependencies": {
-    "@radio-pi/common": "0.1.0",
     "classnames": "^2.2.6",
     "lodash": "^4.17.15",
     "polished": "^3.4.1",

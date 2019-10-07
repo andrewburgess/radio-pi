@@ -1,7 +1,7 @@
 import { each } from "lodash"
 import React, { createContext, useContext, useEffect, useReducer } from "react"
 
-import { MESSAGE_TOKEN, MESSAGE_UNAUTHORIZED, AUTHORIZED_STATE } from "@radio-pi/common"
+import { MESSAGE_TOKEN, MESSAGE_UNAUTHORIZED, AUTHORIZED_STATE } from "../constants"
 
 import { SocketContext, consumeMessage } from "./socket"
 

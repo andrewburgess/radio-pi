@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useReducer } from "react"
 
-import { CLIENT_TYPE, MESSAGE_CLIENT_TYPE } from "@radio-pi/common"
+import { CLIENT_TYPE, MESSAGE_CLIENT_TYPE } from "../constants"
 
 const INITIALIZE = "socket:initialize"
 const ON_MESSAGE = "socket:onmessage"

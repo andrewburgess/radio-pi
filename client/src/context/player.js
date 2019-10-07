@@ -1,11 +1,7 @@
 import { each } from "lodash"
 import React, { createContext, useContext, useEffect, useReducer } from "react"
 
-import {
-    MESSAGE_PLAYER_CONNECTED,
-    MESSAGE_PLAYER_DISCONNECTED,
-    MESSAGE_PLAYER_STATE_CHANGED
-} from "@radio-pi/common"
+import { MESSAGE_PLAYER_CONNECTED, MESSAGE_PLAYER_DISCONNECTED, MESSAGE_PLAYER_STATE_CHANGED } from "../constants"
 
 import { SocketContext, consumeMessage } from "./socket"
 
