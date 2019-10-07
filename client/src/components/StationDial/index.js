@@ -1,7 +1,7 @@
 import React from "react"
 import styled from "styled-components"
 
-import { RADIO_BAND } from "@radio-pi/common"
+import { RADIO_BAND } from "../../constants"
 
 import Dial from "./Dial"
 
