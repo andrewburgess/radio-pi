@@ -4,7 +4,7 @@ import React, { useRef, useEffect } from "react"
 import styled from "styled-components"
 
 import { Colors } from "../../style"
-import { RADIO_BAND } from "../constants"
+import { RADIO_BAND } from "../../constants"
 
 const AM_STATIONS = range(600, 1800, 100)
 const FM_STATIONS = range(88, 110, 2)
