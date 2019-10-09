@@ -1,11 +1,6 @@
 import qs from "querystring"
 
 const REDIRECT_URI = `${window.location.origin}/auth.html`
-const AUTHORIZE_ENDPOINT = `https://accounts.spotify.com/authorize?response_type=code&client_id=${
-    process.env.REACT_APP_SPOTIFY_CLIENT_ID
-}&scope=${encodeURIComponent(
-    `streaming user-modify-playback-state user-read-birthdate user-read-email user-read-private`
-)}&redirect_uri=${REDIRECT_URI}`
 
 export const RepeatMode = {
     NO_REPEAT: 0,
@@ -40,6 +35,9 @@ async function getTokens(code) {
 }
 
 export async function authorize() {
+    const response = await fetch(`/api/spotify/url?redirect_uri=${encodeURIComponent(REDIRECT_URI)}`)
+    const authorizeUrl = await response.json()
+
     return new Promise((resolve) => {
         const handleMessage = async (event) => {
             if (event.origin !== window.location.origin) {
@@ -62,6 +60,6 @@ export async function authorize() {
         }
 
         window.addEventListener("message", handleMessage)
-        window.open(AUTHORIZE_ENDPOINT)
+        window.open(authorizeUrl.url)
     })
 }
