@@ -9,6 +9,7 @@ import * as WebSocket from "ws"
 import * as database from "./database"
 import router from "./routes"
 import { onConnection, initialize } from "./messaging"
+import player from "./player"
 
 const log = debug("radio-pi:server")
 
@@ -20,6 +21,20 @@ log("TODO: Determine static file directory")
 app.use(express.static(path.join(__dirname, "../dist")))
 
 app.use(router)
+
+app.get("/start", (req, res) => {
+    const tokens = database.get(database.Key.TOKENS)
+
+    player.start("deceptacle", tokens.access_token!)
+
+    res.send("ok")
+})
+
+app.get("/stop", (req, res) => {
+    player.stop()
+
+    res.send("ok")
+})
 
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     return res.status(500).json({

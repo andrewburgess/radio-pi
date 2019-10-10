@@ -3,6 +3,7 @@ import { each } from "lodash"
 import * as WebSocket from "ws"
 
 import * as database from "./database"
+import player from "./player"
 import { ISpotifyTokens, Key } from "./database"
 import { refresh } from "./spotify"
 
@@ -66,6 +67,14 @@ function sendMessage(ws: WebSocket, type: Message, payload?: any) {
     )
 }
 
+const onPlayerDisconnected = () => {
+    each(clients, (client) => sendMessage(client, Message.PLAYER_DISCONNECTED))
+}
+
+const onPlayerReady = (params: any) => {
+    each(clients, (client) => sendMessage(client, Message.PLAYER_CONNECTED, params.device_id))
+}
+
 const onRequestToken = async (ws: WebSocket, message: IMessage) => {
     const tokens = database.get(Key.TOKENS)
     if (tokensAreExpired(tokens)) {
@@ -94,6 +103,13 @@ async function handleMessage(ws: WebSocket, message: IMessage) {
 }
 
 export async function initialize() {
+    await initializeTokens()
+
+    player.on("ready", onPlayerReady)
+    player.on("exit", onPlayerDisconnected)
+}
+
+async function initializeTokens() {
     let tokens = database.get(Key.TOKENS)
 
     if (tokensAreExpired(tokens)) {
@@ -120,5 +136,9 @@ export async function onConnection(ws: WebSocket) {
         clients.splice(clients.indexOf(ws, 1))
     })
 
-    initialize()
+    await initializeTokens()
+
+    if (player.getDeviceId()) {
+        onPlayerReady({ device_id: player.getDeviceId() })
+    }
 }
