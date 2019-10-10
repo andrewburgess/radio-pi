@@ -3,7 +3,7 @@ import React from "react"
 import { FaSpotify } from "react-icons/fa"
 import styled from "styled-components"
 
-import { MESSAGE_TOKEN } from "../constants"
+import { MESSAGE_RECEIVE_TOKEN } from "../constants"
 import { authorize } from "../lib/spotify"
 import { SocketContext } from "../context/socket"
 import { Colors } from "../style"
@@ -16,7 +16,7 @@ const onAuthorizeClick = async (event, ws) => {
     ws.send(
         JSON.stringify({
             payload: tokens,
-            type: MESSAGE_TOKEN
+            type: MESSAGE_RECEIVE_TOKEN
         })
     )
 }

@@ -8,8 +8,9 @@ import * as WebSocket from "ws"
 
 import * as database from "./database"
 import router from "./routes"
-import { onConnection, initialize } from "./messaging"
+import { onConnection, initialize as initializeMessaging } from "./messaging"
 import player from "./player"
+import tokens from "./tokens"
 
 const log = debug("radio-pi:server")
 
@@ -51,7 +52,10 @@ socket.on("connection", onConnection)
 
 export default async function start() {
     await database.load()
-    await initialize()
+
+    await tokens.initialize()
+
+    await initializeMessaging()
 
     return server.listen(3001, () => {
         console.log("server listening on 3001")

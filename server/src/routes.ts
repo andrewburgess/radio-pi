@@ -72,7 +72,7 @@ function getAuthorizeUrl(req: Request, res: Response): Response {
         client_id: clientId,
         redirect_uri: redirectUri,
         response_type: "code",
-        scope: encodeURIComponent(SPOTIFY_SCOPES.join(" "))
+        scope: SPOTIFY_SCOPES.join(" ")
     }
 
     return res.json({

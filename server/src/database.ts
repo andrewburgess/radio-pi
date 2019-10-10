@@ -64,7 +64,12 @@ export async function load() {
     const dirExists = await exists(dataDirectory)
     if (!dirExists) {
         await mkdir(dataDirectory)
-        await writeFile(dataFile, JSON.stringify(database))
+        await writeFile(dataFile, JSON.stringify(database, null, 2))
+    }
+
+    const fileExists = await exists(dataFile)
+    if (!fileExists) {
+        await writeFile(dataFile, JSON.stringify(database, null, 2))
     }
 
     const data = await readFile(dataFile, "utf-8")
@@ -74,5 +79,5 @@ export async function load() {
 export function set<T extends Key>(key: T, value: DataType<T>) {
     database[key] = value as any
 
-    fs.writeFileSync(dataFile, JSON.stringify(database))
+    fs.writeFileSync(dataFile, JSON.stringify(database, null, 2))
 }

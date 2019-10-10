@@ -6,6 +6,7 @@ module.exports.MESSAGE_PLAYER_CONNECTED = "player:connected"
 module.exports.MESSAGE_PLAYER_DISCONNECTED = "player:disconnected"
 module.exports.MESSAGE_PLAYER_STATE_CHANGED = "player:state-changed"
 module.exports.MESSAGE_REQUEST_TOKEN = "tokens:request"
+module.exports.MESSAGE_RECEIVE_TOKEN = "tokens:received"
 module.exports.MESSAGE_TOKEN = "tokens"
 module.exports.MESSAGE_UNAUTHORIZED = "tokens:unauthorized"
 
