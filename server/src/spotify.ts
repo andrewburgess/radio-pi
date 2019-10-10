@@ -1,15 +1,16 @@
-const fetch = require("node-fetch")
-const qs = require("querystring")
+import fetch from "node-fetch"
+import { stringify } from "querystring"
+
 const btoa = require("btoa")
 
-const API_ENDPOINT = "https://accounts.spotify.com"
+const SPOTIFY_ENDPOINT = "https://accounts.spotify.com"
 
 function getAuthorization() {
     return `Basic ${btoa(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`)}`
 }
 
-async function requestToken(params) {
-    const response = await fetch(`${API_ENDPOINT}/api/token`, {
+async function requestToken(params: string) {
+    const response = await fetch(`${SPOTIFY_ENDPOINT}/api/token`, {
         body: params,
         headers: {
             authorization: getAuthorization(),
@@ -21,8 +22,8 @@ async function requestToken(params) {
     return await response.json()
 }
 
-module.exports.refresh = async (refreshToken) => {
-    const params = qs.stringify({
+export async function refresh(refreshToken: string) {
+    const params = stringify({
         grant_type: "refresh_token",
         refresh_token: refreshToken
     })
@@ -30,8 +31,8 @@ module.exports.refresh = async (refreshToken) => {
     return await requestToken(params)
 }
 
-module.exports.token = async (code, redirectUri) => {
-    const params = qs.stringify({
+export async function token(code: string, redirectUri: string) {
+    const params = stringify({
         code,
         grant_type: "authorization_code",
         redirect_uri: redirectUri

@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+        "forceConsistentCasingInFileNames": true,
+        "lib": [
+            "esnext"
+        ],
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedLocals": true,
+        "sourceMap": true,
+        "strict": true
+    },
+    "include": [
+        "./src/**/*"
+    ]
+}
