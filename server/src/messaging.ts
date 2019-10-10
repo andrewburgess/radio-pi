@@ -39,6 +39,10 @@ const onPlayerDisconnected = () => {
     each(clients, (client) => sendMessage(client, Message.PLAYER_DISCONNECTED))
 }
 
+const onPlayerStateChanged = (state: any) => {
+    each(clients, (client) => sendMessage(client, Message.PLAYER_STATE_CHANGED, state))
+}
+
 const onPlayerReady = (params: any) => {
     each(clients, (client) => sendMessage(client, Message.PLAYER_CONNECTED, params.device_id))
 }
@@ -79,6 +83,7 @@ async function handleMessage(ws: WebSocket, message: IMessage) {
 
 export async function initialize() {
     player.on("ready", onPlayerReady)
+    player.on("state", onPlayerStateChanged)
     player.on("exit", onPlayerDisconnected)
 
     tokens.on("tokens", onTokensChanged)
@@ -107,5 +112,9 @@ export async function onConnection(ws: WebSocket) {
 
     if (player.getDeviceId()) {
         onPlayerReady({ device_id: player.getDeviceId() })
+    }
+
+    if (player.getLastState()) {
+        onPlayerStateChanged(player.getLastState())
     }
 }

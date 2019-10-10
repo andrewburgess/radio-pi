@@ -8,7 +8,7 @@ import Dial from "./Dial"
 const StationDial = (props) => {
     return (
         <div className={props.className}>
-            <Dial band={RADIO_BAND.AM} freq={690} />
+            <Dial band={RADIO_BAND.FM} freq={92.5} />
         </div>
     )
 }

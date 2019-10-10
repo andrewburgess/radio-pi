@@ -1,10 +1,13 @@
 import * as debug from "debug"
 import { EventEmitter } from "events"
 import * as execa from "execa"
+import fetch from "node-fetch"
 import * as fs from "fs"
 import * as path from "path"
 import * as os from "os"
 import { parse } from "querystring"
+
+import * as spotify from "./spotify"
 
 const log = debug("radio-pi:player")
 
@@ -33,6 +36,7 @@ function getBinaryPath() {
 class Player extends EventEmitter {
     private bin: string
     private deviceId: string | null
+    private lastState: any
     private player: execa.ExecaChildProcess | null
 
     constructor() {
@@ -41,7 +45,7 @@ class Player extends EventEmitter {
         this.bin = getBinaryPath()
         this.deviceId = null
         this.player = null
-        this.onChildEvent = this.onChildEvent.bind(this)
+        this.onPlayerEvent = this.onPlayerEvent.bind(this)
 
         process.on("SIGINT", () => {
             if (this.player) {
@@ -52,6 +56,19 @@ class Player extends EventEmitter {
         })
     }
 
+    async api(method: string, endpoint: string, body: any) {
+        const response = await fetch(`https://api.spotify.com${endpoint}`, {
+            method,
+            body: body ? JSON.stringify(body) : ""
+        })
+
+        try {
+            return response.json()
+        } catch (err) {
+            log(`error ${err}`)
+        }
+    }
+
     start(username: string, token: string) {
         if (this.player) {
             return
@@ -60,7 +77,7 @@ class Player extends EventEmitter {
         log(`starting player with ${username}:${token}`)
         this.player = execa(this.bin, ["--name=Radio PI", `--username=${username}`, `--access_token=${token}`])
 
-        this.player.all!.on("data", this.onChildEvent)
+        this.player.all!.on("data", this.onPlayerEvent)
     }
 
     stop() {
@@ -77,7 +94,11 @@ class Player extends EventEmitter {
         return this.deviceId
     }
 
-    onChildEvent(data: string) {
+    getLastState() {
+        return this.lastState
+    }
+
+    onPlayerEvent(data: string) {
         const event = data.toString().trim()
 
         const type = event.split(" ")[0].split(":")[1]
@@ -89,13 +110,35 @@ class Player extends EventEmitter {
             case "ready":
                 this.onReady(params)
                 break
+            case "started":
+            case "changed":
+                this.onTrackStarted()
+                break
+            case "stopped":
+                this.onTrackStopped()
+                break
         }
 
         this.emit(type, params)
     }
 
-    onReady(params: any) {
+    async onReady(params: any) {
         this.deviceId = params.device_id
+
+        await spotify.setPlayer(this.deviceId!)
+        await spotify.startPlayback()
+    }
+
+    async onTrackStarted() {
+        const data = await spotify.getCurrentState()
+
+        this.lastState = data
+
+        this.emit("state", data)
+    }
+
+    async onTrackStopped() {
+        this.emit("state", null)
     }
 }
 

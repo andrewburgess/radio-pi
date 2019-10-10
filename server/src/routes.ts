@@ -9,10 +9,15 @@ const router = Router()
 const SPOTIFY_AUTHORIZE_ENDPOINT = "https://accounts.spotify.com/authorize"
 const SPOTIFY_SCOPES = [
     "streaming",
+    "playlist-read-collaborative",
+    "playlist-read-private",
+    "user-library-read",
     "user-modify-playback-state",
-    "user-read-birthdate",
-    "user-read-email",
-    "user-read-private"
+    "user-read-currently-playing",
+    "user-read-private",
+    "user-read-playback-state",
+    "user-read-recently-played",
+    "user-top-read"
 ]
 
 /**

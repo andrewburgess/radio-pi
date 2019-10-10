@@ -13,7 +13,7 @@ const Player = (props) => {
         return <div className={props.className}>not connected</div>
     }
 
-    if (!playback || !playback.track_window.current_track) {
+    if (!playback || !playback.item) {
         return (
             <div className={props.className}>
                 <div className="station">
@@ -28,7 +28,7 @@ const Player = (props) => {
         )
     }
 
-    const currentTrack = playback.track_window.current_track
+    const currentTrack = playback.item
     const album = currentTrack.album
     const artists = currentTrack.artists
 
@@ -36,7 +36,7 @@ const Player = (props) => {
         <div className={props.className}>
             <div className="station">
                 <span className="freq">FM 92.5</span>
-                <span className="station-name">{playback.context.metadata.context_description}</span>
+                {playback.context ? <span className="station-name">{playback.context.metadata.name}</span> : null}
             </div>
             <AlbumArt src={album.images[0].url} title={album.name} />
             <div className="details">
