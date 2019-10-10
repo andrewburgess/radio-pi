@@ -1,7 +1,5 @@
 import React, { createContext, useEffect, useReducer } from "react"
 
-import { CLIENT_TYPE, MESSAGE_CLIENT_TYPE } from "../constants"
-
 const INITIALIZE = "socket:initialize"
 const ON_MESSAGE = "socket:onmessage"
 const CONSUME_MESSAGE = "socket:consume-message"
@@ -40,19 +38,6 @@ const SocketProvider = (props) => {
 
     useEffect(() => {
         const ws = new WebSocket(`ws://${window.location.hostname}:3001/ws`)
-
-        const notify = () =>
-            ws.send(
-                JSON.stringify({
-                    payload: CLIENT_TYPE.REMOTE,
-                    type: MESSAGE_CLIENT_TYPE
-                })
-            )
-        if (ws.readyState === WebSocket.OPEN) {
-            notify()
-        } else {
-            ws.addEventListener("open", () => notify())
-        }
 
         ws.addEventListener("message", (event) => {
             dispatch({
