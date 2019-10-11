@@ -1,14 +1,15 @@
-import React from "react"
+import React, { useContext } from "react"
 import styled from "styled-components"
 
-import { RADIO_BAND } from "../../constants"
+import { TunerContext } from "../../context/tuner"
 
 import Dial from "./Dial"
 
 const StationDial = (props) => {
+    const [state] = useContext(TunerContext)
     return (
         <div className={props.className}>
-            <Dial band={RADIO_BAND.FM} freq={92.5} />
+            <Dial band={state.band} freq={state.frequency} />
         </div>
     )
 }

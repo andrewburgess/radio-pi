@@ -11,6 +11,8 @@ import router from "./routes"
 import { onConnection, initialize as initializeMessaging } from "./messaging"
 import player from "./player"
 import tokens from "./tokens"
+import tuner from "./tuner"
+import { Key } from "./types"
 
 const log = debug("radio-pi:server")
 
@@ -24,7 +26,7 @@ app.use(express.static(path.join(__dirname, "../dist")))
 app.use(router)
 
 app.get("/start", (req, res) => {
-    const tokens = database.get(database.Key.TOKENS)
+    const tokens = database.get(Key.TOKENS)
 
     player.start("deceptacle", tokens.access_token!)
 
@@ -33,6 +35,12 @@ app.get("/start", (req, res) => {
 
 app.get("/stop", (req, res) => {
     player.stop()
+
+    res.send("ok")
+})
+
+app.get("/tune", (req, res) => {
+    tuner.update(parseInt(req.query.band, 10), parseFloat(req.query.freq))
 
     res.send("ok")
 })

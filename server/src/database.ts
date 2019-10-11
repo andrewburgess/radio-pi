@@ -2,6 +2,8 @@ import * as fs from "fs"
 import * as path from "path"
 import { promisify } from "util"
 
+import { IStation, ISpotifyTokens, Key } from "./types"
+
 const exists = promisify(fs.exists)
 const mkdir = promisify(fs.mkdir)
 const readFile = promisify(fs.readFile)
@@ -9,32 +11,6 @@ const writeFile = promisify(fs.writeFile)
 
 const dataDirectory = path.join(process.cwd(), "data")
 const dataFile = path.join(dataDirectory, "database.json")
-
-export enum Key {
-    STATIONS = "STATIONS",
-    TOKENS = "TOKENS"
-}
-
-export enum RadioBand {
-    AM,
-    FM
-}
-
-export interface IStation {
-    band: RadioBand
-    frequency: number
-    uri: string
-}
-
-export interface ISpotifyTokens {
-    access_token: string | null
-    created_at: number
-    expires_in: number
-    redirect_uri: string | null
-    refresh_token: string | null
-    scope: string | null
-    token_type: string | null
-}
 
 export interface IDatabase {
     [Key.STATIONS]: IStation[]

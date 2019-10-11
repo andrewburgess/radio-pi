@@ -8,6 +8,7 @@ module.exports.MESSAGE_REQUEST_TOKEN = "tokens:request"
 module.exports.MESSAGE_RECEIVE_TOKEN = "tokens:received"
 module.exports.MESSAGE_TOKEN = "tokens"
 module.exports.MESSAGE_UNAUTHORIZED = "tokens:unauthorized"
+module.exports.MESSAGE_TUNER_UPDATE = "tuner:update"
 
 module.exports.AUTHORIZED_STATE = {
     UNKNOWN: 0,

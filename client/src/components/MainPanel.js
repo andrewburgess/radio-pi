@@ -7,6 +7,7 @@ import { AUTHORIZED_STATE } from "../constants"
 import { AppContext } from "../context/app"
 import { PlayerProvider } from "../context/player"
 import { StationProvider } from "../context/stations"
+import { TunerProvider } from "../context/tuner"
 import Authorize from "./Authorize"
 import Radio from "./Radio"
 
@@ -24,7 +25,9 @@ const MainPanel = (props) => {
             {context.authorized === AUTHORIZED_STATE.AUTHORIZED ? (
                 <StationProvider>
                     <PlayerProvider>
-                        <Radio />
+                        <TunerProvider>
+                            <Radio />
+                        </TunerProvider>
                     </PlayerProvider>
                 </StationProvider>
             ) : (

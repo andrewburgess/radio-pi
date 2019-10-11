@@ -4,7 +4,8 @@ import * as WebSocket from "ws"
 
 import player from "./player"
 import tokens from "./tokens"
-import { ISpotifyTokens } from "./database"
+import tuner from "./tuner"
+import { ISpotifyTokens } from "./types"
 
 export interface IMessage {
     payload: any
@@ -18,7 +19,8 @@ export enum Message {
     TOKENS_RECEIVED = "tokens:received",
     TOKENS_REQUEST = "tokens:request",
     TOKENS = "tokens",
-    TOKENS_UNAUTHORIZED = "tokens:unauthorized"
+    TOKENS_UNAUTHORIZED = "tokens:unauthorized",
+    TUNER_UPDATE = "tuner:update"
 }
 
 const log = debug("radio-pi:messaging")
@@ -66,6 +68,10 @@ const onTokensChanged = (tokens: ISpotifyTokens) => {
     each(clients, (client) => sendMessage(client, Message.TOKENS, tokens))
 }
 
+const onTunerUpdate = (payload: any) => {
+    each(clients, (client) => sendMessage(client, Message.TUNER_UPDATE, payload))
+}
+
 const MessageHandlers: { [key: string]: any } = {
     [Message.TOKENS_RECEIVED]: onReceiveToken,
     [Message.TOKENS_REQUEST]: onRequestToken
@@ -87,6 +93,8 @@ export async function initialize() {
     player.on("exit", onPlayerDisconnected)
 
     tokens.on("tokens", onTokensChanged)
+
+    tuner.on("update", onTunerUpdate)
 }
 
 export async function onConnection(ws: WebSocket) {
@@ -117,4 +125,6 @@ export async function onConnection(ws: WebSocket) {
     if (player.getLastState()) {
         onPlayerStateChanged(player.getLastState())
     }
+
+    onTunerUpdate(tuner.get())
 }

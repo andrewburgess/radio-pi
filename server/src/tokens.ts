@@ -2,14 +2,14 @@ import * as debug from "debug"
 import { EventEmitter } from "events"
 
 import * as database from "./database"
-import { Key, ISpotifyTokens } from "./database"
+import { Key, ISpotifyTokens } from "./types"
 import { refresh } from "./spotify"
 
 const log = debug("radio-pi:tokens")
 
 class Tokens extends EventEmitter {
     private refreshTimeout: NodeJS.Timeout | null
-    private tokens: database.ISpotifyTokens | null
+    private tokens: ISpotifyTokens | null
 
     constructor() {
         super()

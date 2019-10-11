@@ -3,6 +3,7 @@ import { stringify } from "querystring"
 
 import * as database from "./database"
 import { token } from "./spotify"
+import { Key } from "./types"
 
 const router = Router()
 
@@ -86,7 +87,7 @@ function getAuthorizeUrl(req: Request, res: Response): Response {
 }
 
 function getStations(req: Request, res: Response): Response {
-    const stations = database.get(database.Key.STATIONS)
+    const stations = database.get(Key.STATIONS)
     return res.json(stations)
 }
 
