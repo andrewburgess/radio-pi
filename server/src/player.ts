@@ -82,11 +82,10 @@ class Player extends EventEmitter {
 
     stop() {
         if (this.player) {
+            this.emit("exit", this.deviceId)
             this.player.cancel()
             this.deviceId = null
             this.player = null
-
-            this.emit("exit")
         }
     }
 

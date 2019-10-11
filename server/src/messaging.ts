@@ -37,8 +37,8 @@ function sendMessage(ws: WebSocket, type: Message, payload?: any) {
     )
 }
 
-const onPlayerDisconnected = () => {
-    each(clients, (client) => sendMessage(client, Message.PLAYER_DISCONNECTED))
+const onPlayerDisconnected = (deviceId: any) => {
+    each(clients, (client) => sendMessage(client, Message.PLAYER_DISCONNECTED, deviceId))
 }
 
 const onPlayerStateChanged = (state: any) => {
