@@ -124,6 +124,14 @@ export async function setPlayer(deviceId: string) {
     return await put("/me/player", { device_ids: [deviceId] })
 }
 
+export async function setVolume(deviceId: string, volume: number) {
+    return await put("/me/player/volume", { device_id: deviceId, volume_percent: volume })
+}
+
 export async function startPlayback() {
     return await put("/me/player/play")
+}
+
+export async function stopPlayback() {
+    return await put("/me/player/pause")
 }
