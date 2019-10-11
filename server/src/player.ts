@@ -1,13 +1,14 @@
 import * as debug from "debug"
 import { EventEmitter } from "events"
 import * as execa from "execa"
-import fetch from "node-fetch"
 import * as fs from "fs"
 import * as path from "path"
 import * as os from "os"
 import { parse } from "querystring"
 
 import * as spotify from "./spotify"
+import tuner from "./tuner"
+import { IStation, RadioBand } from "./types"
 
 const log = debug("radio-pi:player")
 
@@ -46,6 +47,7 @@ class Player extends EventEmitter {
         this.deviceId = null
         this.player = null
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
+        this.onTunerUpdate = this.onTunerUpdate.bind(this)
 
         process.on("SIGINT", () => {
             if (this.player) {
@@ -54,19 +56,6 @@ class Player extends EventEmitter {
 
             process.exit(0)
         })
-    }
-
-    async api(method: string, endpoint: string, body: any) {
-        const response = await fetch(`https://api.spotify.com${endpoint}`, {
-            method,
-            body: body ? JSON.stringify(body) : ""
-        })
-
-        try {
-            return response.json()
-        } catch (err) {
-            log(`error ${err}`)
-        }
     }
 
     start(username: string, token: string) {
@@ -81,6 +70,8 @@ class Player extends EventEmitter {
     }
 
     stop() {
+        tuner.off("update", this.onTunerUpdate)
+
         if (this.player) {
             this.emit("exit", this.deviceId)
             this.player.cancel()
@@ -122,11 +113,17 @@ class Player extends EventEmitter {
     }
 
     async onReady(params: any) {
+        log("player ready")
         this.deviceId = params.device_id
+
+        tuner.on("update", this.onTunerUpdate)
 
         await spotify.setPlayer(this.deviceId!)
         await spotify.startPlayback()
+        //await this.playStation(tuner.get())
     }
+
+    async onTunerUpdate(station: IStation) {}
 
     async onTrackStarted() {
         const data = await spotify.getCurrentState()
@@ -138,6 +135,15 @@ class Player extends EventEmitter {
 
     async onTrackStopped() {
         this.emit("state", null)
+    }
+
+    async playStation(station: IStation) {
+        if (!station.uri) {
+            log(`no station defined for ${station.band === RadioBand.AM ? "AM" : "FM"} ${station.frequency}`)
+            return
+        }
+
+        //const total = await spotify.getTrackCount(station.uri)
     }
 }
 
