@@ -13,6 +13,7 @@ import player from "./player"
 import tokens from "./tokens"
 import tuner from "./tuner"
 import { Key } from "./types"
+import { startSyncJobs } from "./sync"
 
 const log = debug("radio-pi:server")
 
@@ -64,6 +65,8 @@ export default async function start() {
     await tokens.initialize()
 
     await initializeMessaging()
+
+    startSyncJobs()
 
     return server.listen(3001, () => {
         console.log("server listening on 3001")

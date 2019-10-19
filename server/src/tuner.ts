@@ -11,8 +11,8 @@ class Tuner extends EventEmitter {
     constructor() {
         super()
 
-        this.band = RadioBand.AM
-        this.frequency = 590
+        this.band = RadioBand.FM
+        this.frequency = 92.5
     }
 
     get(): IStation {
@@ -24,6 +24,8 @@ class Tuner extends EventEmitter {
             return {
                 band: this.band,
                 frequency: this.frequency,
+                lastUpdate: 0,
+                tracks: [],
                 uri: null
             }
         } else {

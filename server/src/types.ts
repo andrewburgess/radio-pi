@@ -11,7 +11,16 @@ export enum RadioBand {
 export interface IStation {
     band: RadioBand
     frequency: number
+    lastUpdate: number
+    tracks: ITrack[]
     uri: string | null
+}
+
+export interface ITrack {
+    track: {
+        duration_ms: number
+        id: string
+    }
 }
 
 export interface ISpotifyTokens {

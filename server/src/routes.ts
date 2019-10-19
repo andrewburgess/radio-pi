@@ -1,25 +1,10 @@
 import { Request, Response, Router } from "express"
-import { stringify } from "querystring"
 
 import * as database from "./database"
-import { token } from "./spotify"
+import { getAuthorizeUrl, token, getTracksInformation } from "./spotify"
 import { Key } from "./types"
 
 const router = Router()
-
-const SPOTIFY_AUTHORIZE_ENDPOINT = "https://accounts.spotify.com/authorize"
-const SPOTIFY_SCOPES = [
-    "streaming",
-    "playlist-read-collaborative",
-    "playlist-read-private",
-    "user-library-read",
-    "user-modify-playback-state",
-    "user-read-currently-playing",
-    "user-read-private",
-    "user-read-playback-state",
-    "user-read-recently-played",
-    "user-top-read"
-]
 
 /**
  * Exchanges an authorization code for Spotify access/refresh tokens
@@ -55,7 +40,7 @@ async function getAccessToken(req: Request, res: Response): Promise<Response> {
  * @param req Incoming HTTP Request
  * @param res Outgoing HTTP Response
  */
-function getAuthorizeUrl(req: Request, res: Response): Response {
+function getAuthUrl(req: Request, res: Response): Response {
     const redirectUri = req.query.redirect_uri
     if (!redirectUri) {
         return res.status(400).json({
@@ -65,25 +50,17 @@ function getAuthorizeUrl(req: Request, res: Response): Response {
         })
     }
 
-    const clientId = process.env.SPOTIFY_CLIENT_ID
-    if (!clientId) {
+    try {
+        return res.json({
+            url: getAuthorizeUrl(redirectUri)
+        })
+    } catch (err) {
         return res.status(500).json({
             error: true,
-            message: "SPOTIFY_CLIENT_ID is not defined",
+            message: err.message,
             status: 500
         })
     }
-
-    const parameters = {
-        client_id: clientId,
-        redirect_uri: redirectUri,
-        response_type: "code",
-        scope: SPOTIFY_SCOPES.join(" ")
-    }
-
-    return res.json({
-        url: `${SPOTIFY_AUTHORIZE_ENDPOINT}?${stringify(parameters)}`
-    })
 }
 
 function getStations(req: Request, res: Response): Response {
@@ -91,8 +68,12 @@ function getStations(req: Request, res: Response): Response {
     return res.json(stations)
 }
 
-router.get("/api/spotify/url", getAuthorizeUrl)
+router.get("/api/spotify/url", getAuthUrl)
 router.post("/api/spotify/token", getAccessToken)
 router.get("/api/stations", getStations)
+router.get("/api/spotify/playlist/:id", async (req, res) => {
+    const info = await getTracksInformation(req.params.id)
+    return res.json(info)
+})
 
 export default router

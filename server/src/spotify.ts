@@ -4,12 +4,26 @@ import fetch from "node-fetch"
 import { stringify } from "querystring"
 
 import tokens from "./tokens"
+import { ITrack } from "./types"
 
 const btoa = require("btoa")
 const log = debug("radio-pi:spotify")
 
 const SPOTIFY_ACCOUNTS = "https://accounts.spotify.com"
 const SPOTIFY_API = "https://api.spotify.com/v1"
+const SPOTIFY_AUTHORIZE_ENDPOINT = "https://accounts.spotify.com/authorize"
+const SPOTIFY_SCOPES = [
+    "streaming",
+    "playlist-read-collaborative",
+    "playlist-read-private",
+    "user-library-read",
+    "user-modify-playback-state",
+    "user-read-currently-playing",
+    "user-read-private",
+    "user-read-playback-state",
+    "user-read-recently-played",
+    "user-top-read"
+]
 
 function getAuthorization() {
     return `Basic ${btoa(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`)}`
@@ -37,13 +51,13 @@ async function get(path: string, query?: any) {
     return response.text()
 }
 
-async function req(method: string, path: string, body?: any) {
+async function req(method: string, path: string, body?: any, query?: any) {
     const t = tokens.getTokens()
     if (!t) {
         throw new Error("no tokens")
     }
 
-    const url = `${SPOTIFY_API}${path}`
+    const url = `${SPOTIFY_API}${path}${query ? "?" + stringify(query) : ""}`
     log(`GET ${url}`)
     const response = await fetch(url, {
         method,
@@ -60,11 +74,11 @@ async function req(method: string, path: string, body?: any) {
     return await response.text()
 }
 
-async function put(path: string, body?: any) {
+async function put(path: string, body?: any, query?: any) {
     return req("PUT", path, body)
 }
 
-/*async function post(path: string, body?: any) {
+/*async function post(path: string, body?: any, query?: any) {
     return req("POST", path, body)
 }*/
 
@@ -100,6 +114,22 @@ export async function token(code: string, redirectUri: string) {
     return await requestToken(params)
 }
 
+export function getAuthorizeUrl(redirectUri: string) {
+    const clientId = process.env.SPOTIFY_CLIENT_ID
+    if (!clientId) {
+        throw new Error("SPOTIFY_CLIENT_ID is not defined")
+    }
+
+    const parameters = {
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: "code",
+        scope: SPOTIFY_SCOPES.join(" ")
+    }
+
+    return `${SPOTIFY_AUTHORIZE_ENDPOINT}?${stringify(parameters)}`
+}
+
 export async function getCurrentState() {
     const state = await get("/me/player/currently-playing")
 
@@ -113,11 +143,29 @@ export async function getCurrentState() {
     return state
 }
 
-export async function getTracksInformation(uri: string) {
-    const parts = uri.split(":")
-    const playlist = await get(`/playlists/${last(parts)}`)
+export async function getTracksInformation(uri: string): Promise<ITrack[]> {
+    const getPage = async (offset: number = 0) => {
+        return get(`/playlists/${last(parts)}/tracks`, {
+            fields: "total,items(track(id,duration_ms))",
+            limit: 100,
+            offset
+        })
+    }
 
-    return playlist
+    const parts = uri.split(":")
+    const playlist = await getPage()
+
+    if (playlist.total > 100) {
+        let total = playlist.total - 100
+
+        while (total > 0) {
+            const next = await getPage(playlist.total - total)
+            playlist.items.push(...next.items)
+            total = total - next.items.length
+        }
+    }
+
+    return playlist.items
 }
 
 export async function setPlayer(deviceId: string) {
@@ -128,8 +176,19 @@ export async function setVolume(deviceId: string, volume: number) {
     return await put("/me/player/volume", { device_id: deviceId, volume_percent: volume })
 }
 
-export async function startPlayback() {
-    return await put("/me/player/play")
+export async function startPlayback(deviceId: string, contextUri: string, offset: number = 0, position: number = 0) {
+    log(`starting playback on ${deviceId} with uri :: ${contextUri} (offset: ${offset}, position: ${position})`)
+    return await put(
+        "/me/player/play",
+        {
+            context_uri: contextUri,
+            offset: {
+                position: offset
+            },
+            position_ms: position
+        },
+        { device_id: deviceId }
+    )
 }
 
 export async function stopPlayback() {

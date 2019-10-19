@@ -2,6 +2,7 @@ import * as debug from "debug"
 import { EventEmitter } from "events"
 import * as execa from "execa"
 import * as fs from "fs"
+import { reduce } from "lodash"
 import * as path from "path"
 import * as os from "os"
 import { parse } from "querystring"
@@ -39,6 +40,7 @@ class Player extends EventEmitter {
     private deviceId: string | null
     private lastState: any
     private player: execa.ExecaChildProcess | null
+    private started: boolean
 
     constructor() {
         super()
@@ -48,6 +50,7 @@ class Player extends EventEmitter {
         this.player = null
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
         this.onTunerUpdate = this.onTunerUpdate.bind(this)
+        this.started = false
 
         process.on("SIGINT", () => {
             if (this.player) {
@@ -119,21 +122,30 @@ class Player extends EventEmitter {
         tuner.on("update", this.onTunerUpdate)
 
         await spotify.setPlayer(this.deviceId!)
-        await spotify.startPlayback()
-        //await this.playStation(tuner.get())
     }
 
     async onTunerUpdate(station: IStation) {}
 
     async onTrackStarted() {
-        const data = await spotify.getCurrentState()
+        if (!this.started) {
+            await this.playStation(tuner.get())
+        }
 
+        this.started = true
+
+        const data = await spotify.getCurrentState()
         this.lastState = data
 
         this.emit("state", data)
     }
 
     async onTrackStopped() {
+        if (!this.started) {
+            await this.playStation(tuner.get())
+        }
+
+        this.started = false
+
         this.emit("state", null)
     }
 
@@ -143,7 +155,23 @@ class Player extends EventEmitter {
             return
         }
 
-        //const total = await spotify.getTrackCount(station.uri)
+        const id = this.getDeviceId()
+
+        if (!id) {
+            log(`no device id?`)
+            return
+        }
+
+        const totalDuration = reduce(station.tracks, (acc, item) => acc + item.track.duration_ms, 0)
+        let remaining = Date.now() % totalDuration
+
+        for (let i = 0; i < station.tracks.length; i++) {
+            if (station.tracks[i].track.duration_ms > remaining) {
+                return await spotify.startPlayback(id, station.uri, i, remaining)
+            }
+
+            remaining -= station.tracks[i].track.duration_ms
+        }
     }
 }
 

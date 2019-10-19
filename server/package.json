@@ -4,7 +4,7 @@
   "description": "Server for radio-pi",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "dev": "node --inspect -r ts-node/register src/index.ts",
     "start": "node index.js"
   },
   "repository": {
