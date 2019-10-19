@@ -58,7 +58,7 @@ async function req(method: string, path: string, body?: any, query?: any) {
     }
 
     const url = `${SPOTIFY_API}${path}${query ? "?" + stringify(query) : ""}`
-    log(`GET ${url}`)
+    log(`${method} ${url} :: ${body}`)
     const response = await fetch(url, {
         method,
         body: JSON.stringify(body),
@@ -75,7 +75,7 @@ async function req(method: string, path: string, body?: any, query?: any) {
 }
 
 async function put(path: string, body?: any, query?: any) {
-    return req("PUT", path, body)
+    return req("PUT", path, body, query)
 }
 
 /*async function post(path: string, body?: any, query?: any) {
@@ -170,6 +170,10 @@ export async function getTracksInformation(uri: string): Promise<ITrack[]> {
 
 export async function setPlayer(deviceId: string) {
     return await put("/me/player", { device_ids: [deviceId] })
+}
+
+export async function setRepeat(deviceId: string) {
+    return await put("/me/player/repeat", {}, { device_id: deviceId, state: "context" })
 }
 
 export async function setVolume(deviceId: string, volume: number) {

@@ -40,7 +40,6 @@ class Player extends EventEmitter {
     private deviceId: string | null
     private lastState: any
     private player: execa.ExecaChildProcess | null
-    private started: boolean
 
     constructor() {
         super()
@@ -50,7 +49,6 @@ class Player extends EventEmitter {
         this.player = null
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
         this.onTunerUpdate = this.onTunerUpdate.bind(this)
-        this.started = false
 
         process.on("SIGINT", () => {
             if (this.player) {
@@ -121,18 +119,14 @@ class Player extends EventEmitter {
 
         tuner.on("update", this.onTunerUpdate)
 
-        await spotify.setPlayer(this.deviceId!)
+        await this.playStation(tuner.get())
     }
 
-    async onTunerUpdate(station: IStation) {}
+    async onTunerUpdate(station: IStation) {
+        await this.playStation(station)
+    }
 
     async onTrackStarted() {
-        if (!this.started) {
-            await this.playStation(tuner.get())
-        }
-
-        this.started = true
-
         const data = await spotify.getCurrentState()
         this.lastState = data
 
@@ -140,16 +134,16 @@ class Player extends EventEmitter {
     }
 
     async onTrackStopped() {
-        if (!this.started) {
-            await this.playStation(tuner.get())
-        }
-
-        this.started = false
+        await this.playStation(tuner.get())
 
         this.emit("state", null)
     }
 
     async playStation(station: IStation) {
+        if (!this.player) {
+            return
+        }
+
         if (!station.uri) {
             log(`no station defined for ${station.band === RadioBand.AM ? "AM" : "FM"} ${station.frequency}`)
             return
@@ -167,11 +161,15 @@ class Player extends EventEmitter {
 
         for (let i = 0; i < station.tracks.length; i++) {
             if (station.tracks[i].track.duration_ms > remaining) {
-                return await spotify.startPlayback(id, station.uri, i, remaining)
+                await spotify.startPlayback(id, station.uri, i, remaining)
+
+                break
             }
 
             remaining -= station.tracks[i].track.duration_ms
         }
+
+        await spotify.setRepeat(id)
     }
 }
 
