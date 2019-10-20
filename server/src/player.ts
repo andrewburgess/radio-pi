@@ -124,8 +124,9 @@ class Player extends EventEmitter {
         await this.playStation(tuner.get())
     }
 
-    async onTunerUpdate(station: IStation) {
-        await this.playStation(station)
+    async onTunerUpdate() {
+        this.emit("state", null)
+        await this.playStation(tuner.get())
     }
 
     async onTrackStarted() {
