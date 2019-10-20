@@ -105,7 +105,7 @@ class Tokens extends EventEmitter {
 
         const now = Date.now()
         const expired = now - (this.tokens.created_at + this.tokens.expires_in * 1000) >= 5 * 60 * 1000 * -1
-        expired ? log("tokens are expired") : log("tokens are not expired")
+        expired ? log("tokens are expired") : void 0
         return expired
     }
 }
