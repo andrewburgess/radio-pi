@@ -58,7 +58,7 @@ async function req(method: string, path: string, body?: any, query?: any) {
     }
 
     const url = `${SPOTIFY_API}${path}${query ? "?" + stringify(query) : ""}`
-    log(`${method} ${url} :: ${body}`)
+    log(`${method} ${url} :: %o`, body)
     const response = await fetch(url, {
         method,
         body: JSON.stringify(body),
