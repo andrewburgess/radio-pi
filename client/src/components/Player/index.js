@@ -2,12 +2,15 @@ import { map } from "lodash"
 import React, { useContext } from "react"
 import styled from "styled-components"
 
+import { RADIO_BAND } from "../../constants"
 import { PlayerContext } from "../../context/player"
+import { TunerContext } from "../../context/tuner"
 import AlbumArt from "./AlbumArt"
 import EmptyAlbumArt from "./EmptyAlbumArt"
 
 const Player = (props) => {
     const [{ deviceId, playback }] = useContext(PlayerContext)
+    const [{ band, frequency }] = useContext(TunerContext)
 
     if (!deviceId) {
         return <div className={props.className}>not connected</div>
@@ -17,7 +20,12 @@ const Player = (props) => {
         return (
             <div className={props.className}>
                 <div className="station">
-                    <span className="freq">N/A</span>
+                    <span className="freq">
+                        {band === RADIO_BAND.AM ? "AM" : "FM"} {frequency}
+                    </span>
+                    <span className="station-name">
+                        <em>tuning...</em>
+                    </span>
                 </div>
                 <EmptyAlbumArt />
                 <div className="details">
@@ -35,7 +43,9 @@ const Player = (props) => {
     return (
         <div className={props.className}>
             <div className="station">
-                <span className="freq">FM 92.5</span>
+                <span className="freq">
+                    {band === RADIO_BAND.AM ? "AM" : "FM"} {frequency}
+                </span>
                 {playback.context ? <span className="station-name">{playback.context.metadata.name}</span> : null}
             </div>
             <AlbumArt src={album.images[0].url} title={album.name} />
