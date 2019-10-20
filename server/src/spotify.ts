@@ -177,7 +177,7 @@ export async function setRepeat(deviceId: string) {
 }
 
 export async function setVolume(deviceId: string, volume: number) {
-    return await put("/me/player/volume", { device_id: deviceId, volume_percent: volume })
+    return await put("/me/player/volume", {}, { device_id: deviceId, volume_percent: volume })
 }
 
 export async function startPlayback(deviceId: string, contextUri: string, offset: number = 0, position: number = 0) {

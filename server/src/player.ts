@@ -40,6 +40,7 @@ class Player extends EventEmitter {
     private deviceId: string | null
     private lastState: any
     private player: execa.ExecaChildProcess | null
+    private volume: number
 
     constructor() {
         super()
@@ -49,6 +50,7 @@ class Player extends EventEmitter {
         this.player = null
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
         this.onTunerUpdate = this.onTunerUpdate.bind(this)
+        this.volume = 100
 
         process.on("SIGINT", () => {
             if (this.player) {
@@ -169,6 +171,7 @@ class Player extends EventEmitter {
             remaining -= station.tracks[i].track.duration_ms
         }
 
+        await spotify.setVolume(id, this.volume)
         await spotify.setRepeat(id)
     }
 }
