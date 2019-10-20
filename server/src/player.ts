@@ -50,7 +50,7 @@ class Player extends EventEmitter {
         this.player = null
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
         this.onTunerUpdate = this.onTunerUpdate.bind(this)
-        this.volume = 100
+        this.volume = 25
 
         process.on("SIGINT", () => {
             if (this.player) {
