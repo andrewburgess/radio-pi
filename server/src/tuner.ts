@@ -1,5 +1,5 @@
 import { EventEmitter } from "events"
-import { find } from "lodash"
+import { find, omit } from "lodash"
 
 import * as database from "./database"
 import { RadioBand, IStation, Key } from "./types"
@@ -37,7 +37,7 @@ class Tuner extends EventEmitter {
         this.band = band
         this.frequency = frequency
 
-        this.emit("update", this.get())
+        this.emit("update", omit(this.get(), "tracks"))
     }
 }
 
