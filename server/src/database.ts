@@ -26,7 +26,8 @@ let database: IDatabase = {
         redirect_uri: null,
         refresh_token: null,
         scope: null,
-        token_type: null
+        token_type: null,
+        username: null
     }
 }
 

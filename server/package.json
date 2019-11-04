@@ -22,7 +22,9 @@
     "execa": "^2.1.0",
     "express": "^4.17.1",
     "lodash": "^4.17.15",
+    "mcp-spi-adc": "^3.0.0",
     "node-fetch": "^2.6.0",
+    "onoff": "^5.0.0",
     "ws": "^7.1.2"
   },
   "devDependencies": {
@@ -35,6 +37,7 @@
     "@types/lodash": "^4.14.144",
     "@types/node": "^12.7.12",
     "@types/node-fetch": "^2.5.2",
+    "@types/onoff": "^4.1.0",
     "@types/ws": "^6.0.3",
     "ts-node": "^8.4.1",
     "typescript": "^3.6.4"

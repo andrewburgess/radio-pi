@@ -2,18 +2,6 @@ import qs from "querystring"
 
 const REDIRECT_URI = `${window.location.origin}/auth.html`
 
-export const RepeatMode = {
-    NO_REPEAT: 0,
-    ONCE_REPEAT: 1,
-    FULL_REPEAT: 2
-}
-
-export const TrackType = {
-    TRACK: "track",
-    EPISODE: "episode",
-    AD: "ad"
-}
-
 async function getTokens(code) {
     if (!code) {
         throw new Error("code not supplied")

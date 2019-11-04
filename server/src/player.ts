@@ -6,10 +6,12 @@ import { reduce } from "lodash"
 import * as path from "path"
 import * as os from "os"
 import { parse } from "querystring"
+import { Gpio } from "onoff"
 
+import * as database from "./database"
 import * as spotify from "./spotify"
 import tuner from "./tuner"
-import { IStation, RadioBand } from "./types"
+import { IStation, RadioBand, Key } from "./types"
 
 const log = debug("radio-pi:player")
 
@@ -39,6 +41,7 @@ class Player extends EventEmitter {
     private bin: string
     private deviceId: string | null
     private lastState: any
+    private onoffPin: Gpio
     private player: execa.ExecaChildProcess | null
     private volume: number
 
@@ -48,17 +51,27 @@ class Player extends EventEmitter {
         this.bin = getBinaryPath()
         this.deviceId = null
         this.player = null
+        this.onOnOffChange = this.onOnOffChange.bind(this)
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
         this.onTunerUpdate = this.onTunerUpdate.bind(this)
         this.volume = 25
+        this.onoffPin = new Gpio(19, "in", "both")
 
         process.on("SIGINT", () => {
             if (this.player) {
                 this.player.kill("SIGINT")
             }
 
+            this.onoffPin.unexport()
+
             process.exit(0)
         })
+
+        this.onoffPin.watch(this.onOnOffChange)
+    }
+
+    initialize() {
+        this.onoffPin.read(this.onOnOffChange)
     }
 
     start(username: string, token: string) {
@@ -89,6 +102,24 @@ class Player extends EventEmitter {
 
     getLastState() {
         return this.lastState
+    }
+
+    onOnOffChange(err: Error | null | undefined, value: number) {
+        if (err) {
+            log(`error reading OnOff pin ${err.message}`)
+            return
+        }
+
+        log(`detected onoff change ${value}`)
+
+        if (value) {
+            const tokens = database.get(Key.TOKENS)
+            if (tokens.username && tokens.access_token) {
+                this.start(tokens.username, tokens.access_token)
+            } else [log(`can't start: ${tokens.username} :: ${tokens.access_token}`)]
+        } else {
+            this.stop()
+        }
     }
 
     onPlayerEvent(data: string) {

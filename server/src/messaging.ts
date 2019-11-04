@@ -3,6 +3,7 @@ import { each } from "lodash"
 import * as WebSocket from "ws"
 
 import player from "./player"
+import * as spotify from "./spotify"
 import tokens from "./tokens"
 import tuner from "./tuner"
 import { ISpotifyTokens } from "./types"
@@ -51,6 +52,12 @@ const onPlayerReady = (params: any) => {
 
 const onReceiveToken = async (ws: WebSocket, message: IMessage) => {
     tokens.setTokens(message.payload)
+
+    const me = await spotify.getMe()
+    tokens.setTokens({
+        ...message.payload,
+        username: me.id
+    })
 }
 
 const onRequestToken = async (ws: WebSocket, message: IMessage) => {

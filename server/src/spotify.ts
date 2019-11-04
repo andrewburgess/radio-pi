@@ -4,7 +4,7 @@ import fetch from "node-fetch"
 import { stringify } from "querystring"
 
 import tokens from "./tokens"
-import { ITrack } from "./types"
+import { ITrack, IUserProfile } from "./types"
 
 const btoa = require("btoa")
 const log = debug("radio-pi:spotify")
@@ -141,6 +141,10 @@ export async function getCurrentState() {
     }
 
     return state
+}
+
+export async function getMe(): Promise<IUserProfile> {
+    return await get("/me")
 }
 
 export async function getTracksInformation(uri: string): Promise<ITrack[]> {
