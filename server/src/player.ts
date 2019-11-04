@@ -8,6 +8,8 @@ import * as os from "os"
 import { parse } from "querystring"
 import { Gpio } from "onoff"
 
+const mcpadc = require("mcp-spi-adc")
+
 import * as database from "./database"
 import * as spotify from "./spotify"
 import tuner from "./tuner"
@@ -44,6 +46,7 @@ class Player extends EventEmitter {
     private onoffPin: Gpio
     private player: execa.ExecaChildProcess | null
     private volume: number
+    private volumePin: any
 
     constructor() {
         super()
@@ -54,6 +57,7 @@ class Player extends EventEmitter {
         this.onOnOffChange = this.onOnOffChange.bind(this)
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
         this.onTunerUpdate = this.onTunerUpdate.bind(this)
+        this.readVolume = this.readVolume.bind(this)
         this.volume = 25
         this.onoffPin = new Gpio(19, "in", "both")
 
@@ -68,6 +72,14 @@ class Player extends EventEmitter {
         })
 
         this.onoffPin.watch(this.onOnOffChange)
+        this.volumePin = mcpadc.open(2, (err: Error) => {
+            if (err) {
+                log(`error opening volume pin ${err.message}`)
+                return
+            }
+
+            setInterval(this.readVolume, 0.1)
+        })
     }
 
     initialize() {
@@ -205,6 +217,17 @@ class Player extends EventEmitter {
 
         await spotify.setVolume(id, this.volume)
         await spotify.setRepeat(id)
+    }
+
+    readVolume() {
+        this.volumePin.read((err: Error, reading: { value: number }) => {
+            if (err) {
+                log(`error reading volume: ${err.message}`)
+                return
+            }
+
+            log(`volume ${reading.value}`)
+        })
     }
 }
 
