@@ -2,7 +2,7 @@ import * as debug from "debug"
 import { EventEmitter } from "events"
 import * as execa from "execa"
 import * as fs from "fs"
-import { reduce } from "lodash"
+import { clamp, reduce } from "lodash"
 import * as path from "path"
 import * as os from "os"
 import { parse } from "querystring"
@@ -226,15 +226,16 @@ class Player extends EventEmitter {
                 return
             }
 
-            log(`volume: ${reading.value}`)
             this.setVolume(reading.value)
         })
     }
 
     async setVolume(volume: number) {
-        if (this.deviceId && Math.abs(this.volume - volume) > 0.02) {
-            this.volume = volume
-            await spotify.setVolume(this.deviceId, Math.floor(volume * 100))
+        const newVolume = clamp(1 + Math.log10(volume), 0, 1)
+        log(`newVolume: ${newVolume}`)
+        if (this.deviceId && Math.abs(this.volume - newVolume) > 0.02) {
+            this.volume = newVolume
+            await spotify.setVolume(this.deviceId, Math.floor(newVolume * 100))
         }
     }
 }
