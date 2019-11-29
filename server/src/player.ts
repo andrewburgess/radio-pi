@@ -231,7 +231,7 @@ class Player extends EventEmitter {
     }
 
     async setVolume(volume: number) {
-        const newVolume = clamp(1 + Math.log10(volume + 0.1), 0, 1)
+        const newVolume = clamp(1 + Math.log10(volume + 0.2), 0, 1)
         log(`newVolume: ${newVolume}`)
         if (this.deviceId && Math.abs(this.volume - newVolume) > 0.01) {
             this.volume = newVolume
