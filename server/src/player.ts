@@ -72,13 +72,13 @@ class Player extends EventEmitter {
         })
 
         this.onoffPin.watch(this.onOnOffChange)
-        this.volumePin = mcpadc.open(2, (err: Error) => {
+        this.volumePin = mcpadc.open(1, (err: Error) => {
             if (err) {
                 log(`error opening volume pin ${err.message}`)
                 return
             }
 
-            setInterval(this.readVolume, 0.1)
+            setInterval(this.readVolume, 500)
         })
     }
 
