@@ -226,8 +226,15 @@ class Player extends EventEmitter {
                 return
             }
 
-            log(`volume ${reading.value}`)
+            this.setVolume(reading.value)
         })
+    }
+
+    async setVolume(volume: number) {
+        if (this.deviceId && Math.abs(this.volume - volume) > 0.1) {
+            this.volume = volume
+            await spotify.setVolume(this.deviceId, Math.floor(volume * 100))
+        }
     }
 }
 
