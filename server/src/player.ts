@@ -58,7 +58,7 @@ class Player extends EventEmitter {
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
         this.onTunerUpdate = this.onTunerUpdate.bind(this)
         this.readVolume = this.readVolume.bind(this)
-        this.volume = 25
+        this.volume = 0
         this.onoffPin = new Gpio(19, "in", "both")
 
         process.on("SIGINT", () => {
@@ -226,12 +226,13 @@ class Player extends EventEmitter {
                 return
             }
 
+            log(`volume: ${reading.value}`)
             this.setVolume(reading.value)
         })
     }
 
     async setVolume(volume: number) {
-        if (this.deviceId && Math.abs(this.volume - volume) > 0.1) {
+        if (this.deviceId && Math.abs(this.volume - volume) > 0.02) {
             this.volume = volume
             await spotify.setVolume(this.deviceId, Math.floor(volume * 100))
         }
