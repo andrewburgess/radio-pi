@@ -1,15 +1,20 @@
 import { EventEmitter } from "events"
-import { debounce, find, omit } from "lodash"
+import { debounce, find, mean, omit } from "lodash"
 import { Gpio } from "onoff"
+import * as SerialPort from "serialport"
 
 import * as database from "./database"
 import { RadioBand, IStation, Key } from "./types"
+
+const MAX_READINGS = 30
 
 class Tuner extends EventEmitter {
     private amPin: Gpio | null
     private band: RadioBand
     private frequency: number
     private fmPin: Gpio | null
+    private port: SerialPort | null
+    private readings: number[]
 
     constructor() {
         super()
@@ -17,6 +22,7 @@ class Tuner extends EventEmitter {
         this.onAmFmChange = debounce(this.onAmFmChange.bind(this), 100)
         this.band = RadioBand.FM
         this.frequency = 92.5
+        this.readings = []
 
         if (Gpio.accessible) {
             this.amPin = new Gpio(26, "in", "both")
@@ -26,9 +32,16 @@ class Tuner extends EventEmitter {
             this.fmPin.watch(this.onAmFmChange)
 
             this.onAmFmChange(null)
+
+            this.port = new SerialPort("/dev/ttyACM0", {
+                baudRate: 115200
+            })
+
+            this.port.on("data", this.onTunerUpdate)
         } else {
             this.amPin = null
             this.fmPin = null
+            this.port = null
         }
     }
 
@@ -73,6 +86,16 @@ class Tuner extends EventEmitter {
         const fm = this.fmPin.readSync()
 
         console.log(`AM: ${am}, FM: ${fm}`)
+    }
+
+    onTunerUpdate(data: Buffer) {
+        const value = parseInt(data.toString("utf8").trim())
+
+        this.readings.push(value)
+        if (this.readings.length > MAX_READINGS) {
+            this.readings.pop()
+            console.log(`value: ${mean(this.readings)}`)
+        }
     }
 
     update(band: RadioBand, frequency: number) {
