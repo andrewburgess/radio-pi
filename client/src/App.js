@@ -5,6 +5,7 @@ import { createGlobalStyle } from "styled-components"
 import { AppProvider } from "./context/app"
 import Header from "./components/Header"
 import MainPanel from "./components/MainPanel"
+import StationPicker from "./components/StationPicker"
 import { Colors } from "./style"
 
 const GlobalStyles = createGlobalStyle`
@@ -50,6 +51,7 @@ const App = (props) => {
                 <GlobalStyles />
                 <Header />
                 <MainPanel />
+                <StationPicker />
             </>
         </AppProvider>
     )

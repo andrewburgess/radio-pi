@@ -40,7 +40,8 @@
     "react-dom": "^16.10.1",
     "react-icons": "^3.7.0",
     "react-scripts": "3.0.1",
-    "styled-components": "^4.4.0"
+    "styled-components": "^4.4.0",
+    "swr": "^0.1.12"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^5.2.1",

@@ -7,6 +7,7 @@ import { SocketContext, consumeMessage } from "./socket"
 
 const DEFAULT_STATE = {
     authorized: AUTHORIZED_STATE.UNKNOWN,
+    modal: {},
     tokens: null
 }
 
@@ -14,8 +15,19 @@ const AppContext = createContext([DEFAULT_STATE, () => {}])
 
 const ACCEPTED_MESSAGES = [MESSAGE_TOKEN, MESSAGE_UNAUTHORIZED]
 
+export const CLOSE_MODAL = "modal:close"
+export const OPEN_MODAL = "modal:open"
+
 function reducer(state, action) {
     switch (action.type) {
+        case CLOSE_MODAL:
+            return {
+                ...state,
+                modal: {
+                    ...state.modal,
+                    [action.payload]: false
+                }
+            }
         case MESSAGE_TOKEN:
             return {
                 ...state,
@@ -27,6 +39,14 @@ function reducer(state, action) {
                 ...state,
                 authorized: AUTHORIZED_STATE.UNAUTHORIZED,
                 tokens: null
+            }
+        case OPEN_MODAL:
+            return {
+                ...state,
+                modal: {
+                    ...state.modal,
+                    [action.payload]: true
+                }
             }
         default:
             return state

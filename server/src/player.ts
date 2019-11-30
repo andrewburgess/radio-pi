@@ -203,15 +203,16 @@ class Player extends EventEmitter {
             return
         }
 
-        if (!station.uri) {
-            log(`no station defined for ${station.band === RadioBand.AM ? "AM" : "FM"} ${station.frequency}`)
-            return
-        }
-
         const id = this.getDeviceId()
 
         if (!id) {
             log(`no device id?`)
+            return
+        }
+
+        if (!station.uri) {
+            log(`no station defined for ${station.band === RadioBand.AM ? "AM" : "FM"} ${station.frequency}`)
+            await spotify.stopPlayback(id)
             return
         }
 

@@ -7,13 +7,36 @@ import { PlayerContext } from "../../context/player"
 import { TunerContext } from "../../context/tuner"
 import AlbumArt from "./AlbumArt"
 import EmptyAlbumArt from "./EmptyAlbumArt"
+import OpenStationPicker from "./OpenStationPicker"
 
 const Player = (props) => {
     const [{ deviceId, playback }] = useContext(PlayerContext)
-    const [{ band, frequency }] = useContext(TunerContext)
+    const [{ band, frequency, uri }] = useContext(TunerContext)
 
     if (!deviceId) {
         return <div className={props.className}>not connected</div>
+    }
+
+    if (!uri) {
+        return (
+            <div className={props.className}>
+                <div className="station">
+                    <span className="freq">
+                        {band === RADIO_BAND.AM ? "AM" : "FM"} {frequency}
+                    </span>
+                    <span className="station-name">
+                        <em>no station</em>
+                    </span>
+                </div>
+                <OpenStationPicker />
+                <div className="details">
+                    <span className="title">
+                        no station for {band === RADIO_BAND.AM ? "AM" : "FM"} {frequency}
+                    </span>
+                    <span className="artists">&nbsp;</span>
+                </div>
+            </div>
+        )
     }
 
     if (!playback || !playback.item) {

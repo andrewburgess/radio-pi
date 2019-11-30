@@ -199,6 +199,6 @@ export async function startPlayback(deviceId: string, contextUri: string, offset
     )
 }
 
-export async function stopPlayback() {
-    return await put("/me/player/pause")
+export async function stopPlayback(deviceId: string) {
+    return await put("/me/player/pause", {}, { device_id: deviceId })
 }
