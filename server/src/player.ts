@@ -8,7 +8,12 @@ import * as os from "os"
 import { parse } from "querystring"
 import { Gpio } from "onoff"
 
-const mcpadc = require("mcp-spi-adc")
+let mcpadc: any
+try {
+    mcpadc = require("mcp-spi-adc")
+} catch (err) {
+    console.error(`error loading mcpadc`, err)
+}
 
 import * as database from "./database"
 import * as spotify from "./spotify"
@@ -40,12 +45,10 @@ function getBinaryPath() {
 }
 
 class Player extends EventEmitter {
-    private amPin: Gpio
     private bin: string
     private deviceId: string | null
-    private fmPin: Gpio
     private lastState: any
-    private onoffPin: Gpio
+    private onoffPin: Gpio | null
     private player: execa.ExecaChildProcess | null
     private volume: number
     private volumePin: any
@@ -56,41 +59,44 @@ class Player extends EventEmitter {
         this.bin = getBinaryPath()
         this.deviceId = null
         this.player = null
-        this.onAmFmChange = this.onAmFmChange.bind(this)
+
         this.onOnOffChange = this.onOnOffChange.bind(this)
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
         this.onTunerUpdate = this.onTunerUpdate.bind(this)
         this.readVolume = this.readVolume.bind(this)
+
         this.volume = 0
-        this.amPin = new Gpio(26, "in", "both")
-        this.fmPin = new Gpio(20, "in", "both")
-        this.onoffPin = new Gpio(19, "in", "both")
+
+        if (Gpio.accessible) {
+            this.onoffPin = new Gpio(19, "in", "both")
+            this.onoffPin.watch(this.onOnOffChange)
+            this.volumePin = mcpadc.open(1, (err: Error) => {
+                if (err) {
+                    log(`error opening volume pin ${err.message}`)
+                    return
+                }
+
+                setInterval(this.readVolume, 500)
+            })
+        } else {
+            this.onoffPin = null
+        }
 
         process.on("SIGINT", () => {
             if (this.player) {
                 this.player.kill("SIGINT")
             }
 
-            this.onoffPin.unexport()
+            tuner.exit()
+
+            this.onoffPin && this.onoffPin.unexport()
 
             process.exit(0)
-        })
-
-        this.amPin.watch(this.onAmFmChange);
-        this.fmPin.watch(this.onAmFmChange);
-        this.onoffPin.watch(this.onOnOffChange)
-        this.volumePin = mcpadc.open(1, (err: Error) => {
-            if (err) {
-                log(`error opening volume pin ${err.message}`)
-                return
-            }
-
-            setInterval(this.readVolume, 500)
         })
     }
 
     initialize() {
-        this.onoffPin.read(this.onOnOffChange)
+        this.onoffPin && this.onoffPin.read(this.onOnOffChange)
     }
 
     start(username: string, token: string) {
@@ -121,13 +127,6 @@ class Player extends EventEmitter {
 
     getLastState() {
         return this.lastState
-    }
-
-    onAmFmChange(err: Error | null | undefined, value: number) {
-        const am = this.amPin.readSync()
-        const fm = this.fmPin.readSync()
-
-        console.log(`AM: ${am}, FM: ${fm}`)
     }
 
     onOnOffChange(err: Error | null | undefined, value: number) {
