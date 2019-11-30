@@ -40,8 +40,10 @@ function getBinaryPath() {
 }
 
 class Player extends EventEmitter {
+    private amPin: Gpio
     private bin: string
     private deviceId: string | null
+    private fmPin: Gpio
     private lastState: any
     private onoffPin: Gpio
     private player: execa.ExecaChildProcess | null
@@ -54,11 +56,14 @@ class Player extends EventEmitter {
         this.bin = getBinaryPath()
         this.deviceId = null
         this.player = null
+        this.onAmFmChange = this.onAmFmChange.bind(this)
         this.onOnOffChange = this.onOnOffChange.bind(this)
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
         this.onTunerUpdate = this.onTunerUpdate.bind(this)
         this.readVolume = this.readVolume.bind(this)
         this.volume = 0
+        this.amPin = new Gpio(26, "in", "both")
+        this.fmPin = new Gpio(20, "in", "both")
         this.onoffPin = new Gpio(19, "in", "both")
 
         process.on("SIGINT", () => {
@@ -71,6 +76,8 @@ class Player extends EventEmitter {
             process.exit(0)
         })
 
+        this.amPin.watch(this.onAmFmChange);
+        this.fmPin.watch(this.onAmFmChange);
         this.onoffPin.watch(this.onOnOffChange)
         this.volumePin = mcpadc.open(1, (err: Error) => {
             if (err) {
@@ -114,6 +121,13 @@ class Player extends EventEmitter {
 
     getLastState() {
         return this.lastState
+    }
+
+    onAmFmChange(err: Error | null | undefined, value: number) {
+        const am = this.amPin.readSync()
+        const fm = this.fmPin.readSync()
+
+        console.log(`AM: ${am}, FM: ${fm}`)
     }
 
     onOnOffChange(err: Error | null | undefined, value: number) {
