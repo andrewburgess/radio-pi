@@ -1,4 +1,4 @@
-import { last } from "lodash"
+import { filter, last } from "lodash"
 import * as debug from "debug"
 import fetch from "node-fetch"
 import { stringify } from "querystring"
@@ -169,7 +169,7 @@ export async function getTracksInformation(uri: string): Promise<ITrack[]> {
         }
     }
 
-    return playlist.items
+    return filter(playlist.items, (item) => !!item.track)
 }
 
 export async function setPlayer(deviceId: string) {
