@@ -1,5 +1,5 @@
 import { EventEmitter } from "events"
-import { clamp, debounce, find, isNaN, mean, omit, range, reverse, round } from "lodash"
+import { clamp, debounce, find, isNaN, map, mean, omit, range, reverse, round } from "lodash"
 import { Gpio } from "onoff"
 import * as SerialPort from "serialport"
 
@@ -9,8 +9,8 @@ import { RadioBand, IStation, Key } from "./types"
 const FREQ_START = 992
 const FREQ_END = 648
 
-const AM_STATIONS = reverse(range(530, 1700, 10))
-const FM_STATIONS = reverse(range(87.9, 108.1, 0.2))
+const AM_STATIONS = reverse(map(range(530, 1700, 10), Math.floor))
+const FM_STATIONS = reverse(map(range(87.9, 108.1, 0.4), val => round(val, 1)))
 
 const MAX_READINGS = 120
 
@@ -113,9 +113,9 @@ class Tuner extends EventEmitter {
 
         const freqs = this.band === RadioBand.AM ? AM_STATIONS : FM_STATIONS
         const percent = clamp((value - FREQ_END) / (FREQ_START - FREQ_END), 0, 1)
-        const bin = round(freqs.length * percent) - 1
+        const bin = round((freqs.length - 1) * percent)
 
-        console.log(`guessing freq: ${freqs[bin]}`)
+        console.log(`guessing freq: ${freqs[bin]}, ${percent}, ${bin}`)
     }
 
     update(band: RadioBand, frequency: number) {
