@@ -1,6 +1,6 @@
 import classnames from "classnames"
 import { darken, lighten } from "polished"
-import { debounce, last, map } from "lodash"
+import { debounce, map } from "lodash"
 import React, { useContext, useState, useCallback, useEffect } from "react"
 import { createPortal } from "react-dom"
 import styled from "styled-components"
@@ -126,7 +126,7 @@ const Modal = (props) => {
 }
 
 const StationPicker = (props) => {
-    const [state, dispatch] = useContext(AppContext)
+    const [state] = useContext(AppContext)
 
     if (!state.modal[STATION_PICKER_MODAL]) {
         return null
