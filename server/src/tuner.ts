@@ -1,12 +1,18 @@
 import { EventEmitter } from "events"
-import { debounce, find, mean, omit } from "lodash"
+import { clamp, debounce, find, isNaN, mean, omit, range, reverse, round } from "lodash"
 import { Gpio } from "onoff"
 import * as SerialPort from "serialport"
 
 import * as database from "./database"
 import { RadioBand, IStation, Key } from "./types"
 
-const MAX_READINGS = 30
+const FREQ_START = 992
+const FREQ_END = 648
+
+const AM_STATIONS = reverse(range(530, 1700, 10))
+const FM_STATIONS = reverse(range(87.9, 108.1, 0.2))
+
+const MAX_READINGS = 120
 
 class Tuner extends EventEmitter {
     private amPin: Gpio | null
@@ -20,6 +26,7 @@ class Tuner extends EventEmitter {
         super()
 
         this.onAmFmChange = debounce(this.onAmFmChange.bind(this), 100)
+        this.onTunerUpdate = this.onTunerUpdate.bind(this)
         this.band = RadioBand.FM
         this.frequency = 92.5
         this.readings = []
@@ -89,13 +96,26 @@ class Tuner extends EventEmitter {
     }
 
     onTunerUpdate(data: Buffer) {
-        const value = parseInt(data.toString("utf8").trim())
+        const rawValue = parseInt(data.toString("utf8").trim())
 
-        this.readings.push(value)
-        if (this.readings.length > MAX_READINGS) {
-            this.readings.pop()
-            console.log(`value: ${mean(this.readings)}`)
+        if (isNaN(rawValue)) {
+            return
         }
+
+        this.readings.push(rawValue)
+
+        if (this.readings.length < MAX_READINGS) {
+            return
+        }
+
+        this.readings.shift()
+        const value = mean(this.readings)
+
+        const freqs = this.band === RadioBand.AM ? AM_STATIONS : FM_STATIONS
+        const percent = clamp((value - FREQ_END) / (FREQ_START - FREQ_END), 0, 1)
+        const bin = round(freqs.length * percent) - 1
+
+        console.log(`guessing freq: ${freqs[bin]}`)
     }
 
     update(band: RadioBand, frequency: number) {
