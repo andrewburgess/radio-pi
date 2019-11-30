@@ -1,12 +1,14 @@
 import * as debug from "debug"
-import { each } from "lodash"
+import { each, omit } from "lodash"
 import * as WebSocket from "ws"
 
+import * as database from "./database"
 import player from "./player"
 import * as spotify from "./spotify"
 import tokens from "./tokens"
 import tuner from "./tuner"
-import { ISpotifyTokens } from "./types"
+import { ISpotifyTokens, Key } from "./types"
+import { syncStation } from "./sync"
 
 export interface IMessage {
     payload: any
@@ -17,6 +19,7 @@ export enum Message {
     PLAYER_CONNECTED = "player:connected",
     PLAYER_DISCONNECTED = "player:disconnected",
     PLAYER_STATE_CHANGED = "player:state-changed",
+    SET_PLAYLIST = "player:set-playlist",
     TOKENS_RECEIVED = "tokens:received",
     TOKENS_REQUEST = "tokens:request",
     TOKENS = "tokens",
@@ -71,6 +74,17 @@ const onRequestToken = async (ws: WebSocket, message: IMessage) => {
     each(clients, (client) => sendMessage(client, Message.TOKENS, t))
 }
 
+const onSetPlaylist = async (ws: WebSocket, message: IMessage) => {
+    const station = tuner.get()
+
+    if (!station.uri) {
+        station.uri = message.payload
+        database.set(Key.STATIONS, [...database.get(Key.STATIONS), station])
+        await syncStation(station)
+        tuner.update(station.band, station.frequency)
+    }
+}
+
 const onTokensChanged = (tokens: ISpotifyTokens) => {
     each(clients, (client) => sendMessage(client, Message.TOKENS, tokens))
 }
@@ -80,6 +94,7 @@ const onTunerUpdate = (payload: any) => {
 }
 
 const MessageHandlers: { [key: string]: any } = {
+    [Message.SET_PLAYLIST]: onSetPlaylist,
     [Message.TOKENS_RECEIVED]: onReceiveToken,
     [Message.TOKENS_REQUEST]: onRequestToken
 }
@@ -133,5 +148,5 @@ export async function onConnection(ws: WebSocket) {
         onPlayerStateChanged(player.getLastState())
     }
 
-    onTunerUpdate(tuner.get())
+    onTunerUpdate(omit(tuner.get(), "tracks"))
 }

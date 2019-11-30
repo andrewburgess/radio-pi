@@ -23,7 +23,7 @@ function getNextRun(last: number) {
     return Math.max(0, 12 * 60 * 60 * 1000 - (Date.now() - last) + random(1000 * 60, 1000 * 60 * 60 * 4))
 }
 
-async function syncStation(station: IStation) {
+export async function syncStation(station: IStation) {
     if (!station.uri) {
         return
     }

@@ -6,8 +6,10 @@ import { createPortal } from "react-dom"
 import styled from "styled-components"
 import useSWR, { useSWRPages } from "swr"
 
+import { SocketContext } from "../context/socket"
 import { AppContext, CLOSE_MODAL } from "../context/app"
 import { Colors } from "../style"
+import { MESSAGE_SET_PLAYLIST } from "../constants"
 
 export const STATION_PICKER_MODAL = "station-picker"
 
@@ -32,8 +34,26 @@ const LoadedPlaylists = (props) => {
 }
 
 const Modal = (props) => {
+    const [{ ws }] = useContext(SocketContext)
     const [state, dispatch] = useContext(AppContext)
     const [playlistUrl, setPlaylistUrl] = useState("https://api.spotify.com/v1/me/playlists")
+
+    const choosePlaylist = useCallback(
+        (playlistUri) => {
+            ws.send(
+                JSON.stringify({
+                    type: MESSAGE_SET_PLAYLIST,
+                    payload: playlistUri
+                })
+            )
+
+            dispatch({
+                type: CLOSE_MODAL,
+                payload: STATION_PICKER_MODAL
+            })
+        },
+        [dispatch, ws]
+    )
 
     const fetcher = getFetcher(state.tokens.access_token)
     const { pages, isEmpty, isReachingEnd, loadMore } = useSWRPages(
@@ -49,7 +69,7 @@ const Modal = (props) => {
             }
 
             return map(data.items, (playlist) => (
-                <div key={playlist.id}>
+                <div key={playlist.id} onClick={() => choosePlaylist(playlist.uri)}>
                     <div className="cover-art">
                         <img alt={playlist.name} src={playlist.images[0].url} />
                     </div>

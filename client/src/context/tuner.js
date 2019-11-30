@@ -7,7 +7,7 @@ import { SocketContext, consumeMessage } from "./socket"
 const DEFAULT_STATE = {
     band: RADIO_BAND.AM,
     frequency: 590,
-    station: null
+    uri: null
 }
 
 const TunerContext = createContext([DEFAULT_STATE, () => {}])
@@ -21,7 +21,7 @@ function reducer(state, action) {
                 ...state,
                 band: action.payload.band,
                 frequency: action.payload.frequency,
-                station: action.payload.station
+                uri: action.payload.uri
             }
         }
         default:
