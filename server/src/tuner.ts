@@ -113,9 +113,10 @@ class Tuner extends EventEmitter {
 
         const freqs = this.band === RadioBand.AM ? AM_STATIONS : FM_STATIONS
         const percent = clamp((value - FREQ_END) / (FREQ_START - FREQ_END), 0, 1)
-        const bin = round(freqs.length * percent) - 1
+        const bin = round(freqs.length - 1 * percent)
 
-        console.log(`guessing freq: ${freqs[bin]}`)
+        // console.log(`guessing freq: ${freqs[bin]}`)
+        freqs[bin] = percent
     }
 
     update(band: RadioBand, frequency: number) {
