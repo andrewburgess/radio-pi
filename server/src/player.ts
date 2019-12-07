@@ -230,7 +230,7 @@ class Player extends EventEmitter {
             remaining -= station.tracks[i].track.duration_ms
         }
 
-        await spotify.setVolume(id, this.volume)
+        await this.setVolume(this.volume)
         await spotify.setRepeat(id)
     }
 
