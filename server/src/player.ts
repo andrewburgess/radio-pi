@@ -51,6 +51,7 @@ class Player extends EventEmitter {
     private onoffPin: Gpio | null
     private player: execa.ExecaChildProcess | null
     private volume: number
+    private volumeReading: number
     private volumePin: any
 
     constructor() {
@@ -67,6 +68,7 @@ class Player extends EventEmitter {
         this.setVolume = throttle(this.setVolume.bind(this), 500)
 
         this.volume = 0
+        this.volumeReading = 0
 
         if (Gpio.accessible) {
             this.onoffPin = new Gpio(19, "in", "both")
@@ -243,9 +245,10 @@ class Player extends EventEmitter {
                 return
             }
 
-            const newVolume = clamp(1 + Math.log10(reading.value + 0.1), 0, 1)
-            if (this.deviceId && Math.abs(this.volume - newVolume) > 0.01) {
-                this.volume = smoothing * this.volume + (1 - smoothing) * newVolume
+            this.volumeReading =
+                smoothing * this.volumeReading + (1 - smoothing) * clamp(1 + Math.log10(reading.value + 0.1), 0, 1)
+            if (this.deviceId && Math.abs(this.volume - this.volumeReading) > 0.01) {
+                this.volume = this.volumeReading
                 log(`Set new volume: ${this.volume}`)
 
                 this.setVolume(this.volume)
