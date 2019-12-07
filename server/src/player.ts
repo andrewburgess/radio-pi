@@ -2,7 +2,7 @@ import * as debug from "debug"
 import { EventEmitter } from "events"
 import * as execa from "execa"
 import * as fs from "fs"
-import { clamp, reduce } from "lodash"
+import { clamp, reduce, throttle } from "lodash"
 import * as path from "path"
 import * as os from "os"
 import { parse } from "querystring"
@@ -64,6 +64,7 @@ class Player extends EventEmitter {
         this.onPlayerEvent = this.onPlayerEvent.bind(this)
         this.onTunerUpdate = this.onTunerUpdate.bind(this)
         this.readVolume = this.readVolume.bind(this)
+        this.setVolume = throttle(this.setVolume.bind(this), 500)
 
         this.volume = 0
 
@@ -76,7 +77,7 @@ class Player extends EventEmitter {
                     return
                 }
 
-                setInterval(this.readVolume, 500)
+                setInterval(this.readVolume, 100)
             })
         } else {
             this.onoffPin = null
@@ -234,23 +235,27 @@ class Player extends EventEmitter {
     }
 
     readVolume() {
+        const smoothing = 0.8
+
         this.volumePin.read((err: Error, reading: { value: number }) => {
             if (err) {
                 log(`error reading volume: ${err.message}`)
                 return
             }
 
-            this.setVolume(reading.value)
+            const newVolume = clamp(1 + Math.log10(reading.value + 0.1), 0, 1)
+            if (this.deviceId && Math.abs(this.volume - newVolume) > 0.01) {
+                this.volume = smoothing * this.volume + (1 - smoothing) * newVolume
+                log(`Set new volume: ${this.volume}`)
+
+                this.setVolume(this.volume)
+            }
         })
     }
 
     async setVolume(volume: number) {
-        const smoothing = 0.75
-        const newVolume = clamp(1 + Math.log10(volume + 0.1), 0, 1)
-        if (this.deviceId && Math.abs(this.volume - newVolume) > 0.01) {
-            this.volume = smoothing * this.volume + (1 - smoothing) * newVolume
-            log(`Set new volume: ${this.volume}`)
-            await spotify.setVolume(this.deviceId, Math.floor(this.volume * 100))
+        if (this.deviceId) {
+            await spotify.setVolume(this.deviceId, Math.floor(volume * 100))
         }
     }
 }
