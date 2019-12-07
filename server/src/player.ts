@@ -76,7 +76,7 @@ class Player extends EventEmitter {
                     return
                 }
 
-                setInterval(this.readVolume, 200)
+                setInterval(this.readVolume, 500)
             })
         } else {
             this.onoffPin = null
@@ -245,11 +245,12 @@ class Player extends EventEmitter {
     }
 
     async setVolume(volume: number) {
+        const smoothing = 0.75
         const newVolume = clamp(1 + Math.log10(volume + 0.1), 0, 1)
         if (this.deviceId && Math.abs(this.volume - newVolume) > 0.01) {
-            this.volume = clamp(this.volume + clamp(newVolume - this.volume, -0.01, 0.01), 0, 1)
-            log(`Set new volume: ${newVolume}`)
-            await spotify.setVolume(this.deviceId, Math.floor(newVolume * 100))
+            this.volume = smoothing * this.volume + (1 - smoothing) * newVolume
+            log(`Set new volume: ${this.volume}`)
+            await spotify.setVolume(this.deviceId, Math.floor(this.volume * 100))
         }
     }
 }
