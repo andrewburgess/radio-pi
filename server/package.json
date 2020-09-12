@@ -23,7 +23,7 @@
     "express": "^4.17.1",
     "lodash": "^4.17.15",
     "mcp-spi-adc": "^3.0.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "onoff": "^5.0.0",
     "serialport": "^8.0.5",
     "ws": "^7.1.2"
